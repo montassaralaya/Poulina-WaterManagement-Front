@@ -1,0 +1,205 @@
+/* Register Component Styles */
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .auth-card {
+    flex: 1;
+    max-width: 500px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+    z-index: 10;
+  }
+  
+  .auth-water-bg {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(135deg, #0d47a1, #29b6f6);
+    overflow: hidden;
+  }
+  
+  .water-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: bottom;
+  }
+  
+  .water-text {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    color: white;
+    max-width: 500px;
+  }
+  
+  .water-text h3 {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  
+  .water-text p {
+    font-size: 18px;
+    opacity: 0.9;
+  }
+  
+  .auth-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .water-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .water-logo h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-blue);
+  }
+  
+  .water-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--primary-blue);
+  }
+  
+  .auth-header h2 {
+    margin: 0 0 10px;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .auth-header p {
+    color: var(--text-light);
+    font-size: 16px;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .form-row mat-form-field {
+    flex: 1;
+  }
+  
+  .auth-button {
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 10px;
+  }
+  
+  .auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-light);
+  }
+  
+  .auth-footer a {
+    color: var(--primary-blue);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 900px) {
+    .auth-water-bg {
+      display: none;
+    }
+    
+    .auth-card {
+      max-width: 100%;
+      padding: 40px 25px;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 20px;
+    }
+  }
+  .error-message {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+.success-message {
+  text-align: center;
+  padding: 30px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  margin: 20px 0;
+
+  .success-icon {
+    font-size: 60px;
+    height: 60px;
+    width: 60px;
+    color: #4caf50;
+    margin-bottom: 15px;
+  }
+
+  h3 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+  }
+
+  p {
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+
+  button {
+    margin-top: 10px;
+  }
+}
+
+.error-snackbar {
+  background-color: #f44336;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: #ffeb3b;
+  }
+}
+.water-logo-link {
+  text-decoration: none; /* remove underline */
+  color: inherit;        /* keep original color */
+  display: inline-block; /* preserve layout */
+  cursor: pointer;       /* show pointer on hover */
+  transition: transform 0.2s;
+}
+
+.water-logo-link:hover {
+  transform: scale(1.05); /* subtle zoom on hover */
+}

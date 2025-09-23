@@ -1,0 +1,89 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <a routerLink="/" class="water-logo-link">
+        <div class="water-logo">
+          <mat-icon class="water-icon">water_drop</mat-icon>
+            <h1>Poulina Water</h1>
+        </div>
+      </a>
+          <h2>Sign in to your account</h2>
+           <p>Manage water resources efficiently</p>
+</div>
+
+
+    <form [formGroup]="loginForm" class="auth-form" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Email Address</mat-label>
+        <input matInput placeholder="name@company.com" formControlName="email" required>
+        <mat-icon matPrefix>alternate_email</mat-icon>
+        <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+          Please enter a valid email
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="showPassword ? 'text' : 'password'" 
+               placeholder="••••••••" formControlName="password" required>
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
+          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          Password is required
+        </mat-error>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+          Password must be at least 6 characters
+        </mat-error>
+      </mat-form-field>
+
+      <div class="form-options">
+        <mat-checkbox formControlName="rememberMe">Remember me</mat-checkbox>
+        <a href="#">Forgot password?</a>
+      </div>
+
+      <!-- Fixed null handling -->
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage }}
+      </div>
+
+      <button mat-raised-button color="primary" class="auth-button" 
+              type="submit" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Log in</span>
+        <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+      </button>
+
+      <div class="divider">
+        <span>or continue with</span>
+      </div>
+
+      <div class="social-login">
+        <button mat-stroked-button class="social-button">
+          <mat-icon svgIcon="google" class="social-icon"></mat-icon>
+          Google
+        </button>
+        <button mat-stroked-button class="social-button">
+          <mat-icon svgIcon="microsoft" class="social-icon"></mat-icon>
+          Microsoft
+        </button>
+      </div>
+
+      <div class="auth-footer">
+        <p>Don't have an account? <a routerLink="/register">Sign up</a></p>
+      </div>
+    </form>
+  </div>
+
+  <div class="auth-water-bg">
+    <div class="water-overlay"></div>
+    <div class="water-text">
+      <h3>Water Management System</h3>
+      <p>Efficient resource allocation for sustainable water usage</p>
+    </div>
+  </div>
+</div>

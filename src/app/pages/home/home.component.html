@@ -1,0 +1,73 @@
+<div class="home-container">
+
+  <!-- Header / Navbar -->
+  <header class="navbar" [@fadeIn]>
+    <div class="logo">
+      <i class="fas fa-tint"></i>
+    </div>
+    <nav>
+      <a routerLink="/">Home</a>
+      <a (click)="scrollTo('about')">About</a>
+      <a routerLink="/register" class="highlight">Sign Up</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <div class="content" [@fadeIn]>
+    <h1 class="title">Poulina Water Management</h1>
+    <p class="subtitle">
+      Suivi et prédiction intelligente de la consommation d'eau des branches.
+    </p>
+    <div class="buttons">
+      <button class="btn login" routerLink="/login">Login</button>
+      <button class="btn signup" routerLink="/register">Sign Up</button>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <section class="features" [@staggerFade]>
+    <div class="feature-card">
+      <h3><i class="fas fa-chart-line"></i> Prédiction</h3>
+      <p>Analyse intelligente de la consommation d'eau par branche.</p>
+    </div>
+    <div class="feature-card">
+      <h3><i class="fas fa-building"></i> Suivi</h3>
+      <p>Surveillance centralisée de toutes les branches Poulina.</p>
+    </div>
+    <div class="feature-card">
+      <h3><i class="fas fa-file-alt"></i> Rapports</h3>
+      <p>Générez des rapports détaillés sur l'utilisation de l'eau.</p>
+    </div>
+  </section>
+
+  <!-- About / Mission Section -->
+  <section id="about" class="about" [@fadeIn]>
+    <h2>Notre Mission</h2>
+    <p>
+      Chez Poulina, nous croyons qu'une gestion durable de l'eau est essentielle.
+      Ce système aide à <strong>optimiser la consommation</strong>, à <strong>prévoir les besoins</strong>
+      et à <strong>réduire le gaspillage</strong> dans toutes les branches du groupe.
+    </p>
+  </section>
+
+  <!-- Quick Links -->
+  <section class="links" [@fadeIn]>
+    <a routerLink="/documentation"><i class="fas fa-book"></i> Documentation</a>
+    <a href="#"><i class="fas fa-phone"></i> Support</a>
+    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" [@fadeIn]>
+    <p>&copy; 2025 Poulina Water Management. Tous droits réservés.</p>
+    <p>Contact: <a href="mailto:support@poulina.com">support&#64;poulina.com</a></p>
+  </footer>
+
+  <!-- Waves -->
+  <div class="waves">
+    <div class="wave" id="wave1"></div>
+    <div class="wave" id="wave2"></div>
+    <div class="wave" id="wave3"></div>
+    <div class="wave" id="wave4"></div>
+  </div>
+</div>

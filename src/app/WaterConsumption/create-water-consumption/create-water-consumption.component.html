@@ -1,0 +1,121 @@
+<div class="app-container">
+  <app-header></app-header>
+
+  <div class="main-content-container">
+    <app-sidebar></app-sidebar>
+
+    <main class="content-area">
+      <!-- Header Section -->
+      <div class="content-header">
+        <div class="header-content">
+          <div class="title-section">
+            <button mat-icon-button class="back-button" (click)="onCancel()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div>
+              <h2><mat-icon class="header-icon">water_drop</mat-icon> Record Water Consumption</h2>
+              <p class="subtitle">Add a new water consumption record to the monitoring system</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>add_circle</mat-icon>
+            Water Consumption Details
+          </mat-card-title>
+          <mat-card-subtitle>Enter the details for the new consumption record</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Success Message -->
+          <div *ngIf="successMessage" class="success-message">
+            <mat-icon>check_circle</mat-icon>
+            {{ successMessage }}
+          </div>
+
+          <form [formGroup]="waterConsumptionForm" (ngSubmit)="onSubmit()" class="consumption-form">
+            <!-- Form Fields Grid -->
+            <div class="form-grid">
+              <!-- Reading Date Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Reading Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="readingDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-icon matPrefix>event</mat-icon>
+                <mat-hint>Select the date of consumption reading</mat-hint>
+                <mat-error *ngIf="waterConsumptionForm.controls['readingDate'].invalid && waterConsumptionForm.controls['readingDate'].touched">
+                  Reading date is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Cubic Meters Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Cubic Meters</mat-label>
+                <input matInput type="number" formControlName="cubicMeters" step="0.01" min="0" />
+                <mat-icon matPrefix>speed</mat-icon>
+                <mat-hint>Enter the water consumption in cubic meters</mat-hint>
+                <mat-error *ngIf="waterConsumptionForm.controls['cubicMeters'].invalid && waterConsumptionForm.controls['cubicMeters'].touched">
+                  <span *ngIf="waterConsumptionForm.controls['cubicMeters'].errors?.['required']">
+                    Cubic meters value is required
+                  </span>
+                  <span *ngIf="waterConsumptionForm.controls['cubicMeters'].errors?.['min']">
+                    Value must be greater than or equal to 0
+                  </span>
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Branch ID Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Branch ID</mat-label>
+                <input matInput formControlName="branchId" />
+                <mat-icon matPrefix>business</mat-icon>
+                <mat-hint>Enter the branch identifier</mat-hint>
+                <mat-error *ngIf="waterConsumptionForm.controls['branchId'].invalid && waterConsumptionForm.controls['branchId'].touched">
+                  Branch ID is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Meter ID Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Meter ID</mat-label>
+                <input matInput formControlName="meterId" />
+                <mat-icon matPrefix>confirmation_number</mat-icon>
+                <mat-hint>Optional - Enter the water meter identifier</mat-hint>
+              </mat-form-field>
+
+              <!-- Information Section -->
+              <div class="info-section">
+                <h3 class="section-title"><mat-icon>info</mat-icon> About Water Consumption Records</h3>
+                <p class="section-description">
+                  Water consumption records help track water usage across Poulina branches. 
+                  Accurate data enables better resource management and conservation efforts.
+                </p>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" 
+                      [disabled]="isSubmitting || waterConsumptionForm.invalid" class="submit-button">
+                <mat-icon>{{ isSubmitting ? 'hourglass_empty' : 'add_circle' }}</mat-icon>
+                {{ isSubmitting ? 'Creating...' : 'Create Record' }}
+              </button>
+
+              <button mat-stroked-button color="warn" type="button" (click)="onCancel()" class="cancel-button">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </div>
+
+  <app-footer></app-footer>
+</div>

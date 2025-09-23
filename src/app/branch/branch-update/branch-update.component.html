@@ -1,0 +1,122 @@
+<div class="app-container">
+  <app-header></app-header>
+
+  <div class="main-content-container">
+    <app-sidebar></app-sidebar>
+
+    <main class="content-area">
+      <!-- Header Section -->
+      <div class="content-header">
+        <div class="header-content">
+          <div class="title-section">
+            <button mat-icon-button class="back-button" (click)="onCancel()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div>
+              <h2><mat-icon class="header-icon">business</mat-icon> Update Branch</h2>
+              <p class="subtitle">Edit the details of this Poulina branch</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>edit</mat-icon>
+            Edit Branch Information
+          </mat-card-title>
+          <mat-card-subtitle>Update the details for branch ID: {{branchId}}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Success Message -->
+          <div *ngIf="successMessage" class="success-message">
+            <mat-icon>check_circle</mat-icon>
+            {{ successMessage }}
+          </div>
+
+          <form [formGroup]="branchForm" (ngSubmit)="onSubmit()" class="branch-form">
+            <!-- Form Fields Grid -->
+            <div class="form-grid">
+              <!-- Name Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Branch Name</mat-label>
+                <input matInput formControlName="name" placeholder="Enter branch name" />
+                <mat-icon matPrefix>business</mat-icon>
+                <mat-hint>Required field</mat-hint>
+                <mat-error *ngIf="branchForm.controls['name'].invalid && branchForm.controls['name'].touched">
+                  <span *ngIf="branchForm.controls['name'].errors?.['required']">Name is required</span>
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Address Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Address</mat-label>
+                <textarea matInput formControlName="address" placeholder="Enter full address" rows="2"></textarea>
+                <mat-icon matPrefix>location_on</mat-icon>
+                <mat-hint>Maximum 200 characters</mat-hint>
+              </mat-form-field>
+
+              <!-- Coordinates Section -->
+              <div class="coordinates-section">
+                <h3 class="section-title"><mat-icon>map</mat-icon> Location Coordinates</h3>
+                
+                <div class="coordinates-grid">
+                  <mat-form-field appearance="outline" class="coordinate-field">
+                    <mat-label>Latitude</mat-label>
+                    <input matInput type="number" formControlName="latitude" placeholder="e.g., 36.8065" />
+                    <mat-icon matPrefix>explore</mat-icon>
+                    <mat-hint>Between -90 and 90</mat-hint>
+                    <mat-error *ngIf="branchForm.controls['latitude'].invalid && branchForm.controls['latitude'].touched">
+                      <span *ngIf="branchForm.controls['latitude'].errors?.['min'] || branchForm.controls['latitude'].errors?.['max']">
+                        Must be between -90 and 90
+                      </span>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="coordinate-field">
+                    <mat-label>Longitude</mat-label>
+                    <input matInput type="number" formControlName="longitude" placeholder="e.g., 10.1815" />
+                    <mat-icon matPrefix>explore</mat-icon>
+                    <mat-hint>Between -180 and 180</mat-hint>
+                    <mat-error *ngIf="branchForm.controls['longitude'].invalid && branchForm.controls['longitude'].touched">
+                      <span *ngIf="branchForm.controls['longitude'].errors?.['min'] || branchForm.controls['longitude'].errors?.['max']">
+                        Must be between -180 and 180
+                      </span>
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Phone Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Phone Number</mat-label>
+                <input matInput formControlName="phone" placeholder="Enter phone number" />
+                <mat-icon matPrefix>phone</mat-icon>
+                <mat-hint>Include country code if needed</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" 
+                      [disabled]="isSubmitting || branchForm.invalid" class="submit-button">
+                <mat-icon>{{ isSubmitting ? 'hourglass_empty' : 'save' }}</mat-icon>
+                {{ isSubmitting ? 'Updating...' : 'Update Branch' }}
+              </button>
+
+              <button mat-stroked-button color="warn" type="button" (click)="onCancel()" class="cancel-button">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </div>
+
+  <app-footer></app-footer>
+</div>

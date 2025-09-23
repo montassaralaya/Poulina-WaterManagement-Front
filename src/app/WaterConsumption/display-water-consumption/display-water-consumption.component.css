@@ -1,0 +1,367 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content-container {
+  display: flex;
+  flex: 1;
+}
+
+.content-area {
+  flex: 1;
+  padding: 24px;
+  background-color: #f5f7f9;
+}
+
+/* Header Section */
+.content-header {
+  margin-bottom: 24px;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .title-section {
+      h2 {
+        display: flex;
+        align-items: center;
+        margin: 0 0 4px 0;
+        color: #2c3e50;
+        font-weight: 600;
+
+        .header-icon {
+          margin-right: 12px;
+          color: #3498db;
+        }
+      }
+
+      .subtitle {
+        color: #7f8c8d;
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      
+      .search-container {
+        flex: 1;
+        min-width: 250px;
+        max-width: 400px;
+        
+        .search-field {
+          width: 100%;
+        }
+      }
+      
+      .create-container {
+        flex-shrink: 0;
+        
+        .create-button {
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          height: 50px;
+          border-radius: 28px;
+          font-weight: 600;
+          font-size: 16px;
+          box-shadow: 0 6px 18px rgba(52, 152, 219, 0.25);
+          transition: all 0.2s ease;
+
+          mat-icon {
+            margin-right: 10px;
+          }
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(52, 152, 219, 0.35);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Stats Cards */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+    color: white;
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .stat-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 40px;
+      opacity: 0.2;
+    }
+  }
+}
+
+/* Branch Cards */
+.branch-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+
+  .branch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    cursor: pointer;
+
+    .branch-title {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      h3 {
+        margin: 0;
+        color: #1976d2;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+
+      .consumption-count {
+        margin-left: 12px;
+        color: #7f8c8d;
+        font-size: 14px;
+      }
+    }
+
+    .branch-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .chart-button {
+        border-radius: 20px;
+
+        mat-icon {
+          margin-right: 4px;
+        }
+      }
+
+      .expand-button {
+        color: #1976d2;
+      }
+    }
+  }
+
+  .branch-content {
+    padding: 0;
+  }
+}
+
+/* Consumption Table */
+.consumption-table {
+  width: 100%;
+
+  .mat-header-cell {
+    font-weight: 600;
+    font-size: 14px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+
+    mat-icon {
+      margin-right: 8px;
+      font-size: 20px;
+    }
+  }
+
+  .mat-cell {
+    padding: 16px;
+    border-bottom: 1px solid #eef2f5;
+
+    mat-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      color: #7f8c8d;
+      vertical-align: middle;
+    }
+  }
+
+  .reading-date {
+    display: flex;
+    align-items: center;
+
+    .time {
+      margin-left: 8px;
+      color: #7f8c8d;
+      font-size: 12px;
+    }
+  }
+
+  .consumption-value {
+    font-weight: 500;
+    color: #1976d2;
+  }
+
+  .meter-info {
+    font-family: monospace;
+  }
+
+  .actions-header {
+    justify-content: center;
+  }
+
+  .actions-cell {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+
+    button {
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+/* Empty State */
+.empty-state-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #bdc3c7;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      color: #2c3e50;
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin: 0 0 24px;
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .branch-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+
+    .branch-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .search-container {
+      max-width: 100%;
+    }
+    
+    .create-container {
+      width: 100%;
+      
+      .create-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .content-area {
+    padding: 16px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+
+  .consumption-table {
+    overflow-x: auto;
+
+    .mat-header-cell {
+      font-size: 12px;
+
+      mat-icon {
+        font-size: 16px;
+      }
+    }
+
+    .mat-cell {
+      padding: 12px 8px;
+      font-size: 14px;
+
+      mat-icon {
+        font-size: 16px;
+      }
+    }
+
+    .actions-cell {
+      gap: 4px;
+    }
+  }
+  
+  .header-actions {
+    .search-container {
+      min-width: unset;
+    }
+  }
+}

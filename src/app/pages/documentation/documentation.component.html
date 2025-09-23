@@ -1,0 +1,64 @@
+<div class="documentation-container">
+  <!-- Animated water bubbles -->
+  <div class="bubble" style="width: 15px; height: 15px; left: 10%; animation-duration: 12s;"></div>
+  <div class="bubble" style="width: 20px; height: 20px; left: 25%; animation-duration: 15s;"></div>
+  <div class="bubble" style="width: 10px; height: 10px; left: 40%; animation-duration: 10s;"></div>
+  <div class="bubble" style="width: 18px; height: 18px; left: 55%; animation-duration: 18s;"></div>
+  <div class="bubble" style="width: 12px; height: 12px; left: 70%; animation-duration: 14s;"></div>
+  <div class="bubble" style="width: 25px; height: 25px; left: 85%; animation-duration: 20s;"></div>
+
+  <!-- Header -->
+  <header class="doc-header">
+    <h1>Poulina Water Management Documentation</h1>
+    <p>Everything you need to know about using the system efficiently.</p>
+    <a routerLink="/home" class="back-home-btn">Back to Homepage</a>
+  </header>
+
+  <!-- Table of Contents -->
+  <nav class="doc-toc">
+    <h2>Contents</h2>
+    <ul>
+      <li><a (click)="scrollToSection('overview')">Overview</a></li>
+      <li><a (click)="scrollToSection('branches')">Branches</a></li>
+      <li><a (click)="scrollToSection('watermeters')">Water Meters</a></li>
+      <li><a (click)="scrollToSection('waterconsumption')">Water Consumption</a></li>
+      <li><a (click)="scrollToSection('reports')">Reports</a></li>
+    </ul>
+  </nav>
+
+  <!-- Sections -->
+  <section id="overview" class="doc-section">
+    <h2>Overview</h2>
+    <p>This system helps monitor, predict, and optimize water usage across Poulina branches.</p>
+    <p>With intuitive dashboards and comprehensive analytics, our solution enables efficient water resource management, helping reduce waste and improve sustainability across all operations.</p>
+  </section>
+
+  <section id="branches" class="doc-section">
+    <h2>Branches</h2>
+    <p>Create, view, and manage branch information. Admins can assign roles to branch managers.</p>
+    <p>Each branch profile contains location details, contact information, operational status, and water usage benchmarks specific to that facility's needs and requirements.</p>
+  </section>
+
+  <section id="watermeters" class="doc-section">
+    <h2>Water Meters</h2>
+    <p>Register water meters, track usage, and update meter information.</p>
+    <p>The system supports various meter types and provides calibration reminders, maintenance scheduling, and real-time data integration for accurate consumption tracking.</p>
+  </section>
+
+  <section id="waterconsumption" class="doc-section">
+    <h2>Water Consumption</h2>
+    <p>Record daily water consumption, generate charts, and analyze trends per branch.</p>
+    <p>Advanced analytics help identify usage patterns, detect anomalies, and provide actionable insights for water conservation and efficiency improvements.</p>
+  </section>
+
+  <section id="reports" class="doc-section">
+    <h2>Reports</h2>
+    <p>Generate detailed reports for water usage and efficiency analysis across all branches.</p>
+    <p>Customizable report templates allow for comprehensive analysis, regulatory compliance documentation, and strategic planning based on historical and predictive data.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="doc-footer">
+    <p>&copy; 2025 Poulina Water Management. All rights reserved.</p>
+  </footer>
+</div>

@@ -1,0 +1,109 @@
+<div class="app-container">
+    <app-header></app-header>
+    
+    <div class="main-content-container">
+      <app-sidebar></app-sidebar>
+      
+      <main class="content-area">
+        <div class="content-header">
+          <h2>Water Management Dashboard</h2>
+          <div class="date-filter">
+            <mat-icon>calendar_today</mat-icon>
+            <span>Last 30 Days</span>
+            <mat-icon>arrow_drop_down</mat-icon>
+          </div>
+        </div>
+  
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="card-content">
+              <mat-icon>water_drop</mat-icon>
+              <div>
+                <h3>Total Consumption</h3>
+                <p>12,560 m³</p>
+              </div>
+            </div>
+            <div class="trend positive">+2.4%</div>
+          </div>
+  
+          <div class="stat-card green">
+            <div class="card-content">
+              <mat-icon>check_circle</mat-icon>
+              <div>
+                <h3>Quality Compliance</h3>
+                <p>98.7%</p>
+              </div>
+            </div>
+            <div class="trend positive">+0.8%</div>
+          </div>
+  
+          <div class="stat-card orange">
+            <div class="card-content">
+              <mat-icon>warning</mat-icon>
+              <div>
+                <h3>Active Alerts</h3>
+                <p>3 Issues</p>
+              </div>
+            </div>
+            <div class="trend negative">+1</div>
+          </div>
+  
+          <div class="stat-card purple">
+            <div class="card-content">
+              <mat-icon>savings</mat-icon>
+              <div>
+                <h3>Cost Savings</h3>
+                <p>$24,580</p>
+              </div>
+            </div>
+            <div class="trend positive">+5.2%</div>
+          </div>
+        </div>
+  
+        <!-- Charts Section -->
+        <div class="charts-container">
+          <div class="chart-card">
+            <h3>Water Consumption Trend</h3>
+            <div class="chart-placeholder">Consumption Chart</div>
+          </div>
+          <div class="chart-card">
+            <h3>Regional Distribution</h3>
+            <div class="chart-placeholder">Distribution Chart</div>
+          </div>
+        </div>
+  
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+          <h3>Recent Activity</h3>
+          <div class="activity-list">
+            <div class="activity-item">
+              <mat-icon class="activity-icon">warning</mat-icon>
+              <div>
+                <p>Pressure alert in Zone B</p>
+                <small>10 minutes ago</small>
+              </div>
+            </div>
+            <div class="activity-item">
+              <mat-icon class="activity-icon">assignment</mat-icon>
+              <div>
+                <p>Monthly report generated</p>
+                <small>2 hours ago</small>
+              </div>
+            </div>
+            <div class="activity-item">
+              <mat-icon class="activity-icon">engineering</mat-icon>
+              <div>
+                <p>Maintenance completed at Station #5</p>
+                <small>Yesterday</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <app-footer></app-footer>
+  </div>
+  
+  

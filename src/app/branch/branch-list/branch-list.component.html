@@ -1,0 +1,202 @@
+<div class="app-container">
+  <!-- Header -->
+  <app-header></app-header>
+
+  <div class="main-content-container">
+    <!-- Sidebar -->
+    <app-sidebar></app-sidebar>
+
+    <!-- Main Content -->
+    <main class="content-area">
+      <!-- Header with title, search, and create button -->
+      <div class="content-header">
+        <div class="header-content">
+          <div class="title-section">
+            <h2>
+              <mat-icon class="header-icon">business</mat-icon>
+              Branch Management
+            </h2>
+            <p class="subtitle">Manage all Poulina branches and their information</p>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="search-section">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Search branches</mat-label>
+              <input matInput placeholder="Search by name, address, or phone" 
+                    [(ngModel)]="searchTerm" (input)="applyFilter()">
+              <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Create Button -->
+          <div class="create-container">
+            <button mat-raised-button color="primary" (click)="goToCreateBranch()" class="create-btn">
+              <mat-icon>add</mat-icon>
+              Create Branch
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-container" *ngIf="!isLoading">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ filteredBranches.length }}</div>
+            <div class="stat-label">Displayed Branches</div>
+            <mat-icon class="stat-icon">visibility</mat-icon>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ branches.length }}</div>
+            <div class="stat-label">Total Branches</div>
+            <mat-icon class="stat-icon">location_city</mat-icon>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">Monitoring</div>
+            <mat-icon class="stat-icon">monitor_heart</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Results Info -->
+      <div class="results-info" *ngIf="searchTerm && !isLoading">
+        <p>
+          Showing {{ filteredBranches.length }} of {{ branches.length }} branches 
+          <span *ngIf="searchTerm">matching "{{ searchTerm }}"</span>
+          <button mat-button color="primary" (click)="clearSearch()" *ngIf="searchTerm">
+            Clear search
+          </button>
+        </p>
+      </div>
+
+      <!-- Table Card -->
+      <mat-card class="table-card">
+        <mat-card-header class="table-header">
+          <div class="table-title-section">
+            <mat-card-title>
+              <mat-icon>list</mat-icon>
+              {{ searchTerm ? 'Search Results' : 'All Branches' }}
+            </mat-card-title>
+            <mat-card-subtitle>Click on actions to manage branches</mat-card-subtitle>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="loading-spinner" *ngIf="isLoading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading branches...</p>
+          </div>
+
+          <div class="table-container" *ngIf="!isLoading">
+            <table mat-table [dataSource]="filteredBranches" class="branch-table mat-elevation-z2">
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>business</mat-icon> Name
+                </th>
+                <td mat-cell *matCellDef="let branch" class="branch-name">
+                  <mat-icon class="cell-icon">business</mat-icon>
+                  {{ branch.name }}
+                </td>
+              </ng-container>
+
+              <!-- Address Column -->
+              <ng-container matColumnDef="address">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>location_on</mat-icon> Address
+                </th>
+                <td mat-cell *matCellDef="let branch" class="branch-address">
+                  <mat-icon class="cell-icon">location_on</mat-icon>
+                  {{ branch.address }}
+                </td>
+              </ng-container>
+
+              <!-- Coordinates Column -->
+              <ng-container matColumnDef="coordinates">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>map</mat-icon> Coordinates
+                </th>
+                <td mat-cell *matCellDef="let branch">
+                  <div class="coordinates">
+                    <span class="coordinate-item">
+                      <strong>Lat:</strong> {{ branch.latitude | number:'1.4-4' }}
+                    </span>
+                    <span class="coordinate-item">
+                      <strong>Lng:</strong> {{ branch.longitude | number:'1.4-4' }}
+                    </span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Phone Column -->
+              <ng-container matColumnDef="phone">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>phone</mat-icon> Phone
+                </th>
+                <td mat-cell *matCellDef="let branch" class="branch-phone">
+                  <mat-icon class="cell-icon">phone</mat-icon>
+                  {{ branch.phone }}
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="actions-header">
+                  <mat-icon>settings</mat-icon> Actions
+                </th>
+                <td mat-cell *matCellDef="let branch" class="actions-cell">
+                  <button mat-icon-button color="primary" (click)="editBranch(branch)" matTooltip="Edit branch" class="action-btn">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteBranch(branch)" matTooltip="Delete branch" class="action-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <button mat-icon-button color="accent" matTooltip="View details" class="action-btn">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <div class="empty-state" *ngIf="branches.length === 0">
+              <mat-icon>business</mat-icon>
+              <h3>No branches found</h3>
+              <p>Get started by creating your first branch</p>
+              <button mat-raised-button color="primary" (click)="goToCreateBranch()">
+                <mat-icon>add</mat-icon>
+                Create First Branch
+              </button>
+            </div>
+
+            <div class="empty-state" *ngIf="branches.length > 0 && filteredBranches.length === 0 && searchTerm">
+              <mat-icon>search_off</mat-icon>
+              <h3>No matching branches found</h3>
+              <p>No branches match your search for "{{ searchTerm }}"</p>
+              <button mat-raised-button color="primary" (click)="clearSearch()">
+                <mat-icon>clear</mat-icon>
+                Clear search
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+</div>

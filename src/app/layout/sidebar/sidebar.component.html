@@ -1,0 +1,87 @@
+<nav class="sidebar">
+  <ul>
+    <!-- Dashboard -->
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <!-- Branches -->
+    <li class="sidebar-group styled-link">
+      <div class="group-header" (click)="toggleGroup('branches')">
+        <mat-icon>apartment</mat-icon>
+        <span>Branches</span>
+        <mat-icon class="chevron" [class.rotated]="openGroups['branches']">expand_more</mat-icon>
+      </div>
+      <ul class="sidebar-submenu" *ngIf="openGroups['branches']">
+        <li>
+          <a routerLink="/branches/list" routerLinkActive="active">
+            <mat-icon>list</mat-icon>
+            <span>List Branches</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/branches/create" routerLinkActive="active">
+            <mat-icon>add_circle</mat-icon>
+            <span>Create Branch</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Water Management -->
+    <li class="sidebar-group styled-link">
+      <div class="group-header" (click)="toggleGroup('water')">
+        <mat-icon>opacity</mat-icon>
+        <span>Water Management</span>
+        <mat-icon class="chevron" [class.rotated]="openGroups['water']">expand_more</mat-icon>
+      </div>
+      <ul class="sidebar-submenu" *ngIf="openGroups['water']">
+        <li>
+          <a routerLink="/watermeter/list" routerLinkActive="active">
+            <mat-icon>settings_input_component</mat-icon>
+            <span>Water Meters</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/waterconsumption/list" routerLinkActive="active">
+            <mat-icon>bar_chart</mat-icon>
+            <span>Consumptions</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/water-bills/list" routerLinkActive="active">
+            <mat-icon>receipt_long</mat-icon>
+            <span>Bills</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Reports -->
+    <li>
+      <a routerLink="/reports" routerLinkActive="active">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Reports</span>
+      </a>
+    </li>
+
+    <!-- Settings -->
+    <li>
+      <a routerLink="/settings" routerLinkActive="active">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </a>
+    </li>
+
+    <!-- Admin -->
+    <li>
+      <a routerLink="/admin" routerLinkActive="active">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>Admin</span>
+      </a>
+    </li>
+  </ul>
+</nav>

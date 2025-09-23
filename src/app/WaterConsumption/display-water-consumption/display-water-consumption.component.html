@@ -1,0 +1,148 @@
+<div class="app-container">
+  <app-header></app-header>
+
+  <div class="main-content-container">
+    <app-sidebar></app-sidebar>
+
+    <main class="content-area">
+      <!-- Header Section -->
+      <div class="content-header">
+        <div class="header-content">
+          <div class="title-section">
+            <h2><mat-icon class="header-icon">water_drop</mat-icon> Water Consumption</h2>
+            <p class="subtitle">Monitor and manage water usage across all branches</p>
+          </div>
+          <button mat-raised-button color="primary" class="create-button" (click)="goToCreate()">
+            <mat-icon>add</mat-icon> Create Consumption Record
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics Overview -->
+      <div class="stats-container">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getTotalConsumptions() }}</div>
+            <div class="stat-label">Total Records</div>
+            <mat-icon class="stat-icon">list</mat-icon>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getTotalBranches() }}</div>
+            <div class="stat-label">Branches</div>
+            <mat-icon class="stat-icon">business</mat-icon>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getTotalConsumption() | number:'1.0-0' }} m³</div>
+            <div class="stat-label">Total Water</div>
+            <mat-icon class="stat-icon">water_drop</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Branch Cards -->
+      <div *ngIf="branchConsumptionsList.length > 0; else emptyState">
+        <div *ngFor="let branch of branchConsumptionsList" class="branch-card">
+          <div class="branch-header">
+            <div class="branch-title">
+              <mat-icon>business</mat-icon>
+              <h3>Branch ID: {{ branch.branchId }}</h3>
+              <span class="consumption-count">
+                ({{ branch.consumptions.length }} record{{ branch.consumptions.length !== 1 ? 's' : '' }}, 
+                {{ getBranchTotalConsumption(branch.branchId) | number:'1.0-0' }} m³ total)
+              </span>
+            </div>
+            <div class="branch-actions">
+              <button mat-stroked-button color="accent" (click)="viewChart(branch.branchId)" class="chart-button">
+                <mat-icon>show_chart</mat-icon> View Consumption Chart
+              </button>
+              <button mat-icon-button class="expand-button" (click)="toggleBranch(branch.branchId)">
+                <mat-icon>{{ isBranchExpanded(branch.branchId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="isBranchExpanded(branch.branchId)" class="branch-content">
+            <table mat-table [dataSource]="branch.consumptions" class="consumption-table mat-elevation-z1">
+              <!-- Reading Date Column -->
+              <ng-container matColumnDef="readingDate">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>event</mat-icon> Reading Date
+                </th>
+                <td mat-cell *matCellDef="let consumption" class="reading-date">
+                  <mat-icon>calendar_today</mat-icon>
+                  {{ consumption.readingDate | date:'mediumDate' }}
+                  <span class="time">{{ consumption.readingDate | date:'shortTime' }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Cubic Meters Column -->
+              <ng-container matColumnDef="cubicMeters">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>speed</mat-icon> Consumption (m³)
+                </th>
+                <td mat-cell *matCellDef="let consumption" class="consumption-value">
+                  <mat-icon>water_drop</mat-icon>
+                  {{ consumption.cubicMeters | number:'1.2-2' }} m³
+                </td>
+              </ng-container>
+
+              <!-- Meter ID Column -->
+              <ng-container matColumnDef="meterId">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon>confirmation_number</mat-icon> Meter
+                </th>
+                <td mat-cell *matCellDef="let consumption" class="meter-info">
+                  <mat-icon>water_meter</mat-icon>
+                  {{ consumption.meterSerialNumber || consumption.meterId || 'N/A' }}
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="actions-header">
+                  <mat-icon>settings</mat-icon> Actions
+                </th>
+                <td mat-cell *matCellDef="let consumption" class="actions-cell">
+                  <button mat-icon-button color="primary" (click)="editConsumption(consumption.id)" matTooltip="Edit record">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteConsumption(consumption.id)" matTooltip="Delete record">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <ng-template #emptyState>
+        <mat-card class="empty-state-card">
+          <mat-card-content>
+            <div class="empty-state">
+              <mat-icon>water_drop</mat-icon>
+              <h3>No water consumption records found</h3>
+              <p>Get started by adding your first water consumption record</p>
+              <button mat-raised-button color="primary" (click)="goToCreate()">
+                <mat-icon>add</mat-icon>
+                Create First Record
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </ng-template>
+    </main>
+  </div>
+
+  <app-footer></app-footer>
+</div>
