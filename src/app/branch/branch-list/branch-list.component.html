@@ -8,192 +8,256 @@
 
     <!-- Main Content -->
     <main class="content-area">
-      <!-- Header with title, search, and create button -->
-      <div class="content-header">
-        <div class="header-content">
-          <div class="title-section">
-            <h2>
-              <mat-icon class="header-icon">business</mat-icon>
-              Branch Management
-            </h2>
-            <p class="subtitle">Manage all Poulina branches and their information</p>
-          </div>
-
-          <!-- Search Bar -->
-          <div class="search-section">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Search branches</mat-label>
-              <input matInput placeholder="Search by name, address, or phone" 
-                    [(ngModel)]="searchTerm" (input)="applyFilter()">
-              <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
-                <mat-icon>close</mat-icon>
-              </button>
-              <mat-icon matPrefix>search</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <!-- Create Button -->
-          <div class="create-container">
-            <button mat-raised-button color="primary" (click)="goToCreateBranch()" class="create-btn">
-              <mat-icon>add</mat-icon>
-              Create Branch
-            </button>
+      <div class="content-wrapper">
+        <!-- Header with title only -->
+        <div class="content-header">
+          <div class="header-content">
+            <div class="title-section">
+              <h2>
+                <mat-icon class="header-icon">water_drop</mat-icon>
+                Water Branch Management
+              </h2>
+              <p class="subtitle">Manage all water distribution branches and their information</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Stats Cards -->
-      <div class="stats-container" *ngIf="!isLoading">
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ filteredBranches.length }}</div>
-            <div class="stat-label">Displayed Branches</div>
-            <mat-icon class="stat-icon">visibility</mat-icon>
-          </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ branches.length }}</div>
-            <div class="stat-label">Total Branches</div>
-            <mat-icon class="stat-icon">location_city</mat-icon>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">24/7</div>
-            <div class="stat-label">Monitoring</div>
-            <mat-icon class="stat-icon">monitor_heart</mat-icon>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Results Info -->
-      <div class="results-info" *ngIf="searchTerm && !isLoading">
-        <p>
-          Showing {{ filteredBranches.length }} of {{ branches.length }} branches 
-          <span *ngIf="searchTerm">matching "{{ searchTerm }}"</span>
-          <button mat-button color="primary" (click)="clearSearch()" *ngIf="searchTerm">
-            Clear search
-          </button>
-        </p>
-      </div>
-
-      <!-- Table Card -->
-      <mat-card class="table-card">
-        <mat-card-header class="table-header">
-          <div class="table-title-section">
-            <mat-card-title>
-              <mat-icon>list</mat-icon>
-              {{ searchTerm ? 'Search Results' : 'All Branches' }}
+        <!-- Advanced Search Section -->
+        <mat-card class="advanced-search-card">
+          <mat-card-header (click)="isAdvancedSearchOpen = !isAdvancedSearchOpen" class="search-header">
+            <mat-card-title class="search-title">
+              <mat-icon>filter_alt</mat-icon>
+              Advanced Search Filters
+              <mat-icon class="expand-icon">{{ isAdvancedSearchOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
             </mat-card-title>
-            <mat-card-subtitle>Click on actions to manage branches</mat-card-subtitle>
-          </div>
-        </mat-card-header>
+          </mat-card-header>
 
-        <mat-card-content>
-          <div class="loading-spinner" *ngIf="isLoading">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Loading branches...</p>
-          </div>
+          <mat-card-content *ngIf="isAdvancedSearchOpen" class="search-content">
+            <div class="search-filters-grid">
+              <!-- Search Type -->
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Search Type</mat-label>
+                <mat-select [(ngModel)]="searchFilters.searchType" (selectionChange)="onFilterChange()">
+                  <mat-option *ngFor="let option of searchTypeOptions" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>search</mat-icon>
+              </mat-form-field>
 
-          <div class="table-container" *ngIf="!isLoading">
-            <table mat-table [dataSource]="filteredBranches" class="branch-table mat-elevation-z2">
-              <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>business</mat-icon> Name
-                </th>
-                <td mat-cell *matCellDef="let branch" class="branch-name">
-                  <mat-icon class="cell-icon">business</mat-icon>
-                  {{ branch.name }}
-                </td>
-              </ng-container>
+              <!-- Name Filter -->
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>{{ getSearchFieldPlaceholder() }}</mat-label>
+                <input matInput [placeholder]="getSearchFieldPlaceholder()" 
+                      [(ngModel)]="searchFilters.name" (input)="onFilterChange()">
+                <mat-icon matPrefix>business</mat-icon>
+              </mat-form-field>
 
-              <!-- Address Column -->
-              <ng-container matColumnDef="address">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>location_on</mat-icon> Address
-                </th>
-                <td mat-cell *matCellDef="let branch" class="branch-address">
-                  <mat-icon class="cell-icon">location_on</mat-icon>
-                  {{ branch.address }}
-                </td>
-              </ng-container>
+              <!-- Address Filter -->
+              <mat-form-field appearance="outline" class="filter-field" *ngIf="searchFilters.searchType === 'all' || searchFilters.searchType === 'address'">
+                <mat-label>Address</mat-label>
+                <input matInput placeholder="Search by address" 
+                      [(ngModel)]="searchFilters.address" (input)="onFilterChange()">
+                <mat-icon matPrefix>location_on</mat-icon>
+              </mat-form-field>
 
-              <!-- Coordinates Column -->
-              <ng-container matColumnDef="coordinates">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>map</mat-icon> Coordinates
-                </th>
-                <td mat-cell *matCellDef="let branch">
-                  <div class="coordinates">
-                    <span class="coordinate-item">
-                      <strong>Lat:</strong> {{ branch.latitude | number:'1.4-4' }}
-                    </span>
-                    <span class="coordinate-item">
-                      <strong>Lng:</strong> {{ branch.longitude | number:'1.4-4' }}
-                    </span>
-                  </div>
-                </td>
-              </ng-container>
-
-              <!-- Phone Column -->
-              <ng-container matColumnDef="phone">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>phone</mat-icon> Phone
-                </th>
-                <td mat-cell *matCellDef="let branch" class="branch-phone">
-                  <mat-icon class="cell-icon">phone</mat-icon>
-                  {{ branch.phone }}
-                </td>
-              </ng-container>
-
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="actions-header">
-                  <mat-icon>settings</mat-icon> Actions
-                </th>
-                <td mat-cell *matCellDef="let branch" class="actions-cell">
-                  <button mat-icon-button color="primary" (click)="editBranch(branch)" matTooltip="Edit branch" class="action-btn">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="deleteBranch(branch)" matTooltip="Delete branch" class="action-btn">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                  <button mat-icon-button color="accent" matTooltip="View details" class="action-btn">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
-
-            <div class="empty-state" *ngIf="branches.length === 0">
-              <mat-icon>business</mat-icon>
-              <h3>No branches found</h3>
-              <p>Get started by creating your first branch</p>
-              <button mat-raised-button color="primary" (click)="goToCreateBranch()">
-                <mat-icon>add</mat-icon>
-                Create First Branch
-              </button>
+              <!-- Phone Filter -->
+              <mat-form-field appearance="outline" class="filter-field" *ngIf="searchFilters.searchType === 'all' || searchFilters.searchType === 'phone'">
+                <mat-label>Phone Number</mat-label>
+                <input matInput placeholder="Search by phone" 
+                      [(ngModel)]="searchFilters.phone" (input)="onFilterChange()">
+                <mat-icon matPrefix>phone</mat-icon>
+              </mat-form-field>
             </div>
 
-            <div class="empty-state" *ngIf="branches.length > 0 && filteredBranches.length === 0 && searchTerm">
-              <mat-icon>search_off</mat-icon>
-              <h3>No matching branches found</h3>
-              <p>No branches match your search for "{{ searchTerm }}"</p>
-              <button mat-raised-button color="primary" (click)="clearSearch()">
-                <mat-icon>clear</mat-icon>
-                Clear search
+            <!-- Filter Actions -->
+            <div class="filter-actions">
+              <button mat-stroked-button color="warn" (click)="clearAllFilters()" 
+                      [disabled]="!hasActiveFilters()" class="clear-filters-btn">
+                <mat-icon>clear_all</mat-icon>
+                Clear All Filters
+              </button>
+              
+              <div class="active-filters" *ngIf="hasActiveFilters()">
+                <span class="filter-badge" *ngIf="searchFilters.name">
+                  Name: {{ searchFilters.name }}
+                </span>
+                <span class="filter-badge" *ngIf="searchFilters.address">
+                  Address: {{ searchFilters.address }}
+                </span>
+                <span class="filter-badge" *ngIf="searchFilters.phone">
+                  Phone: {{ searchFilters.phone }}
+                </span>
+                <span class="filter-badge">
+                  Search Type: {{ searchFilters.searchType }}
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Stats Cards -->
+        <div class="stats-container" *ngIf="!isLoading">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ filteredBranches.length }}</div>
+              <div class="stat-label">Displayed Branches</div>
+              <mat-icon class="stat-icon">water_drop</mat-icon>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ branches.length }}</div>
+              <div class="stat-label">Total Branches</div>
+              <mat-icon class="stat-icon">location_city</mat-icon>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Water Monitoring</div>
+              <mat-icon class="stat-icon">monitor_heart</mat-icon>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Results Info -->
+        <div class="results-info" *ngIf="hasActiveFilters() && !isLoading">
+          <div class="results-content">
+            <mat-icon>info</mat-icon>
+            <span>
+              Showing {{ filteredBranches.length }} of {{ branches.length }} water branches 
+              <span *ngIf="hasActiveFilters()">with applied filters</span>
+            </span>
+          </div>
+        </div>
+
+<!-- Table Card -->
+<mat-card class="table-card">
+  <!-- Fixed Table Header - Centered -->
+  <mat-card-header class="table-header">
+    <div class="table-title-section" style="width: 100%; text-align: center;">
+      <mat-card-title class="table-main-title" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 0 !important;">
+        <mat-icon>water_drop</mat-icon>
+        {{ hasActiveFilters() ? 'Filtered Water Branches' : 'All Water Branches' }}
+      </mat-card-title>
+      <mat-card-subtitle class="table-subtitle" style="text-align: center !important; margin: 12px 0 0 0 !important;">
+        Manage water distribution branches and their operations
+      </mat-card-subtitle>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="loading-spinner" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading water branches...</p>
+    </div>
+
+    <div class="table-container" *ngIf="!isLoading">
+      <table mat-table [dataSource]="filteredBranches" class="branch-table">
+        
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef class="water-header">
+            <mat-icon>business</mat-icon> Branch Name
+          </th>
+          <td mat-cell *matCellDef="let branch" class="branch-name water-cell">
+            <mat-icon class="cell-icon">water_drop</mat-icon>
+            {{ branch.name }}
+          </td>
+        </ng-container>
+
+        <!-- Address Column -->
+        <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef class="water-header">
+            <mat-icon>location_on</mat-icon> Address
+          </th>
+          <td mat-cell *matCellDef="let branch" class="branch-address water-cell">
+            <mat-icon class="cell-icon">location_on</mat-icon>
+            {{ branch.address || 'No address provided' }}
+          </td>
+        </ng-container>
+
+        <!-- Coordinates Column -->
+        <ng-container matColumnDef="coordinates">
+          <th mat-header-cell *matHeaderCellDef class="water-header">
+            <mat-icon>map</mat-icon> Coordinates
+          </th>
+          <td mat-cell *matCellDef="let branch" class="water-cell">
+            <div class="coordinates" *ngIf="branch.latitude && branch.longitude; else noCoordinates">
+              <span class="coordinate-item">
+                <strong>Lat:</strong> {{ branch.latitude | number:'1.4-4' }}
+              </span>
+              <span class="coordinate-item">
+                <strong>Lng:</strong> {{ branch.longitude | number:'1.4-4' }}
+              </span>
+            </div>
+            <ng-template #noCoordinates>
+              <span class="no-data">No coordinates</span>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- Phone Column -->
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef class="water-header">
+            <mat-icon>phone</mat-icon> Phone
+          </th>
+          <td mat-cell *matCellDef="let branch" class="branch-phone water-cell">
+            <mat-icon class="cell-icon">phone</mat-icon>
+            {{ branch.phone || 'No phone provided' }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header water-header">
+            <mat-icon>settings</mat-icon> Actions
+          </th>
+          <td mat-cell *matCellDef="let branch" class="actions-cell water-cell">
+            <div class="action-buttons" style="display: flex; justify-content: center; gap: 8px;">
+              <button mat-icon-button color="primary" (click)="editBranch(branch)" 
+                     matTooltip="Edit branch" class="action-btn edit-btn">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteBranch(branch)" 
+                     matTooltip="Delete branch" class="action-btn delete-btn">
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="water-header-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="water-data-row"></tr>
+      </table>
+
+      <!-- Your existing empty states remain the same -->
+      <div class="empty-state" *ngIf="branches.length === 0">
+        <mat-icon class="empty-icon">water_drop</mat-icon>
+        <h3>No water branches found</h3>
+        <p>Get started by creating your first water distribution branch</p>
+        <button mat-raised-button color="primary" (click)="goToCreateBranch()" class="create-action-btn">
+          <mat-icon>add</mat-icon>
+          Create First Water Branch
+        </button>
+      </div>
+
+      <div class="empty-state" *ngIf="branches.length > 0 && filteredBranches.length === 0 && hasActiveFilters()">
+        <mat-icon class="empty-icon">search_off</mat-icon>
+        <h3>No matching water branches found</h3>
+        <p>No branches match your current filter criteria</p>
+        <button mat-raised-button color="primary" (click)="clearAllFilters()" class="create-action-btn">
+          <mat-icon>clear</mat-icon>
+          Clear all filters
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+      </div>
     </main>
   </div>
 

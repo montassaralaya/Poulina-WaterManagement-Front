@@ -6,6 +6,9 @@ export interface CreateWaterMeter {
   serialNumber: string;
   branchId: string;
   status?: 'Active' | 'Maintenance' | 'Disabled';
+  installedAt?: Date | null;
+  lastMaintenance?: Date | null;
+  meterType?: string | null;
 }
 
 export interface WaterMeterResponse {
@@ -13,6 +16,9 @@ export interface WaterMeterResponse {
   serialNumber: string;
   status: string;
   branchId: string;
+  installedAt?: Date | null;
+  lastMaintenance?: Date | null;
+  meterType?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

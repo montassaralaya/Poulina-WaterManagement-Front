@@ -13,6 +13,8 @@ import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
 import { WaterMeterService, CreateWaterMeter } from '../watermeter.service';
 import { CommonModule } from '@angular/common';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-watermeter-create',
@@ -29,7 +31,9 @@ import { CommonModule } from '@angular/common';
     SidebarComponent,
     FooterComponent,
     HttpClientModule,
-    CommonModule
+    CommonModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './watermeter-create.component.html',
   styleUrls: ['./watermeter-create.component.scss']
@@ -38,10 +42,13 @@ export class WaterMeterCreateComponent {
   waterMeterForm = this.fb.group({
     serialNumber: ['', [Validators.required, Validators.maxLength(50)]],
     branchId: ['', Validators.required],
-    status: ['Active'] // default value
+    status: ['Active'] as ['Active' | 'Maintenance' | 'Disabled'], // Type-safe
+    installedAt: [''],
+    lastMaintenance: [''],
+    meterType: ['']
   });
 
-  statusOptions: string[] = ['Active', 'Maintenance', 'Disabled'];
+  statusOptions: ('Active' | 'Maintenance' | 'Disabled')[] = ['Active', 'Maintenance', 'Disabled'];
   isSubmitting = false;
 
   constructor(
@@ -54,11 +61,19 @@ export class WaterMeterCreateComponent {
     if (this.waterMeterForm.invalid) return;
     this.isSubmitting = true;
 
-    const data = this.waterMeterForm.value as CreateWaterMeter;
+    const formValue = this.waterMeterForm.value;
+
+    const data: CreateWaterMeter = {
+      serialNumber: formValue.serialNumber ?? '',
+      branchId: formValue.branchId ?? '',
+      status: formValue.status ?? 'Active',
+      installedAt: formValue.installedAt ? new Date(formValue.installedAt) : null,
+      lastMaintenance: formValue.lastMaintenance ? new Date(formValue.lastMaintenance) : null,
+      meterType: formValue.meterType || null
+    };
 
     this.waterMeterService.create(data).subscribe({
       next: () => {
-        // In a real application, consider using a snackbar/toast instead of alert
         alert('✅ Water meter created successfully');
         this.isSubmitting = false;
         this.router.navigate(['watermeter/list']);
@@ -73,8 +88,8 @@ export class WaterMeterCreateComponent {
 
   onCancel() {
     if (this.waterMeterForm.dirty) {
-      const confirm = window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
-      if (!confirm) return;
+      const confirmCancel = window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
+      if (!confirmCancel) return;
     }
     this.router.navigate(['watermeter/list']);
   }

@@ -5,142 +5,323 @@
     <app-sidebar></app-sidebar>
 
     <main class="content-area">
-      <!-- Header Section -->
-      <div class="content-header">
-        <div class="header-content">
-          <div class="title-section">
-            <h2><mat-icon class="header-icon">water_drop</mat-icon> Water Consumption</h2>
-            <p class="subtitle">Monitor and manage water usage across all branches</p>
+      <div class="content-wrapper">
+        <!-- Header Section -->
+        <div class="content-header">
+          <div class="header-content">
+            <div class="title-section">
+              <h2><mat-icon class="header-icon">water_drop</mat-icon> Water Consumption</h2>
+              <p class="subtitle">Monitor and manage water usage across all branches</p>
+            </div>
           </div>
-          <button mat-raised-button color="primary" class="create-button" (click)="goToCreate()">
-            <mat-icon>add</mat-icon> Create Consumption Record
-          </button>
         </div>
-      </div>
 
-      <!-- Statistics Overview -->
-      <div class="stats-container">
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ getTotalConsumptions() }}</div>
-            <div class="stat-label">Total Records</div>
-            <mat-icon class="stat-icon">list</mat-icon>
-          </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ getTotalBranches() }}</div>
-            <div class="stat-label">Branches</div>
-            <mat-icon class="stat-icon">business</mat-icon>
-          </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ getTotalConsumption() | number:'1.0-0' }} m³</div>
-            <div class="stat-label">Total Water</div>
-            <mat-icon class="stat-icon">water_drop</mat-icon>
-          </mat-card-content>
-        </mat-card>
-      </div>
+        <!-- Filter Summary -->
+        <div class="filter-summary" *ngIf="activeFiltersCount > 0">
+          <div class="filter-summary-content">
+            <mat-icon>filter_list</mat-icon>
+            <span class="filter-text">{{ getFilterSummary() }}</span>
+            <button mat-button color="warn" (click)="clearAllFilters()" class="clear-all-btn">
+              <mat-icon>clear_all</mat-icon>
+              Clear All
+            </button>
+          </div>
+        </div>
 
-      <!-- Branch Cards -->
-      <div *ngIf="branchConsumptionsList.length > 0; else emptyState">
-        <div *ngFor="let branch of branchConsumptionsList" class="branch-card">
-          <div class="branch-header">
-            <div class="branch-title">
-              <mat-icon>business</mat-icon>
-              <h3>Branch ID: {{ branch.branchId }}</h3>
-              <span class="consumption-count">
-                ({{ branch.consumptions.length }} record{{ branch.consumptions.length !== 1 ? 's' : '' }}, 
-                {{ getBranchTotalConsumption(branch.branchId) | number:'1.0-0' }} m³ total)
+        <!-- Advanced Filters -->
+        <mat-expansion-panel [(expanded)]="filterPanelExpanded" class="filters-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>tune</mat-icon>
+              Advanced Filters
+              <span class="filter-count-badge" *ngIf="activeFiltersCount > 0">
+                {{ activeFiltersCount }} active
               </span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-grid">
+            <!-- Year Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Year</mat-label>
+              <mat-select [(ngModel)]="selectedYear" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Years</mat-option>
+                <mat-option *ngFor="let year of availableYears" [value]="year">
+                  {{ year }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Branch Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Branch</mat-label>
+              <mat-select [(ngModel)]="selectedBranch" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Branches</mat-option>
+                <mat-option *ngFor="let branch of availableBranches" [value]="branch.id">
+                  {{ branch.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Meter Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Meter</mat-label>
+              <mat-select [(ngModel)]="selectedMeter" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Meters</mat-option>
+                <mat-option *ngFor="let meter of availableMeters" [value]="meter.id">
+                  {{ meter.serialNumber }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Source Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Source</mat-label>
+              <mat-select [(ngModel)]="selectedSource" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Sources</mat-option>
+                <mat-option *ngFor="let source of availableSources" [value]="source">
+                  {{ source }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Date Range Filter -->
+            <div class="date-range-filter">
+              <h4>Date Range</h4>
+              <div class="date-range-fields">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Start Date</mat-label>
+                  <input matInput [matDatepicker]="startPicker" [(ngModel)]="dateRange.start" (dateChange)="applyAllFilters()">
+                  <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #startPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>End Date</mat-label>
+                  <input matInput [matDatepicker]="endPicker" [(ngModel)]="dateRange.end" (dateChange)="applyAllFilters()">
+                  <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
             </div>
-            <div class="branch-actions">
-              <button mat-stroked-button color="accent" (click)="viewChart(branch.branchId)" class="chart-button">
-                <mat-icon>show_chart</mat-icon> View Consumption Chart
-              </button>
-              <button mat-icon-button class="expand-button" (click)="toggleBranch(branch.branchId)">
-                <mat-icon>{{ isBranchExpanded(branch.branchId) ? 'expand_less' : 'expand_more' }}</mat-icon>
-              </button>
+
+            <!-- Consumption Range Filter -->
+            <div class="consumption-range-filter">
+              <h4>Consumption Range (m³)</h4>
+              <div class="consumption-range-fields">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Min Consumption</mat-label>
+                  <input matInput type="number" [(ngModel)]="minConsumption" (input)="applyAllFilters()" min="0" step="0.1">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Max Consumption</mat-label>
+                  <input matInput type="number" [(ngModel)]="maxConsumption" (input)="applyAllFilters()" min="0" step="0.1">
+                </mat-form-field>
+              </div>
             </div>
           </div>
 
-          <div *ngIf="isBranchExpanded(branch.branchId)" class="branch-content">
-            <table mat-table [dataSource]="branch.consumptions" class="consumption-table mat-elevation-z1">
-              <!-- Reading Date Column -->
-              <ng-container matColumnDef="readingDate">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>event</mat-icon> Reading Date
-                </th>
-                <td mat-cell *matCellDef="let consumption" class="reading-date">
-                  <mat-icon>calendar_today</mat-icon>
-                  {{ consumption.readingDate | date:'mediumDate' }}
-                  <span class="time">{{ consumption.readingDate | date:'shortTime' }}</span>
-                </td>
-              </ng-container>
+          <div class="filter-actions">
+            <button mat-stroked-button (click)="clearAllFilters()">
+              <mat-icon>clear</mat-icon>
+              Reset Filters
+            </button>
+            <button mat-raised-button color="primary" (click)="filterPanelExpanded = false">
+              <mat-icon>check</mat-icon>
+              Apply Filters
+            </button>
+          </div>
+        </mat-expansion-panel>
 
-              <!-- Cubic Meters Column -->
-              <ng-container matColumnDef="cubicMeters">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>speed</mat-icon> Consumption (m³)
-                </th>
-                <td mat-cell *matCellDef="let consumption" class="consumption-value">
-                  <mat-icon>water_drop</mat-icon>
-                  {{ consumption.cubicMeters | number:'1.2-2' }} m³
-                </td>
-              </ng-container>
+        <!-- Statistics Overview -->
+        <div class="stats-container">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getTotalConsumptions() }}</div>
+              <div class="stat-label">Total Records</div>
+              <mat-icon class="stat-icon">list</mat-icon>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getTotalBranches() }}</div>
+              <div class="stat-label">Branches</div>
+              <mat-icon class="stat-icon">business</mat-icon>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getTotalConsumption() | number:'1.0-0' }} m³</div>
+              <div class="stat-label">Total Water</div>
+              <mat-icon class="stat-icon">water_drop</mat-icon>
+            </mat-card-content>
+          </mat-card>
 
-              <!-- Meter ID Column -->
-              <ng-container matColumnDef="meterId">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>confirmation_number</mat-icon> Meter
-                </th>
-                <td mat-cell *matCellDef="let consumption" class="meter-info">
-                  <mat-icon>water_meter</mat-icon>
-                  {{ consumption.meterSerialNumber || consumption.meterId || 'N/A' }}
-                </td>
-              </ng-container>
+          <mat-card class="stat-card" *ngIf="activeFiltersCount > 0">
+            <mat-card-content>
+              <div class="stat-value">{{ activeFiltersCount }}</div>
+              <div class="stat-label">Active Filters</div>
+              <mat-icon class="stat-icon">filter_list</mat-icon>
+            </mat-card-content>
+          </mat-card>
+        </div>
 
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="actions-header">
-                  <mat-icon>settings</mat-icon> Actions
-                </th>
-                <td mat-cell *matCellDef="let consumption" class="actions-cell">
-                  <button mat-icon-button color="primary" (click)="editConsumption(consumption.id)" matTooltip="Edit record">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="deleteConsumption(consumption.id)" matTooltip="Delete record">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
+        <!-- Branch Cards -->
+        <div *ngIf="branchConsumptionsList.length > 0; else emptyState">
+          <div *ngFor="let branch of branchConsumptionsList" class="branch-card">
+            <div class="branch-header">
+              <div class="branch-title">
+                <mat-icon>business</mat-icon>
+                <div class="branch-info">
+                  <h3>{{ branch.branchName }}</h3>
+                  <div class="branch-details">
+                    <span class="branch-id">ID: {{ branch.branchId }}</span>
+                    <span class="branch-address">{{ getBranchAddress(branch.branchId) }}</span>
+                  </div>
+                </div>
+                <span class="consumption-count">
+                  ({{ branch.consumptions.length }} record{{ branch.consumptions.length !== 1 ? 's' : '' }}, 
+                  {{ getBranchTotalConsumption(branch.branchId) | number:'1.0-0' }} m³ total)
+                </span>
+              </div>
+              <div class="branch-actions">
+                <button mat-stroked-button color="accent" (click)="viewChart(branch.branchId)" class="chart-button">
+                  <mat-icon>show_chart</mat-icon> View Chart
+                </button>
+                <button mat-icon-button class="expand-button" (click)="toggleBranch(branch.branchId)">
+                  <mat-icon>{{ isBranchExpanded(branch.branchId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+            </div>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+            <div *ngIf="isBranchExpanded(branch.branchId)" class="branch-content">
+              <table mat-table [dataSource]="branch.consumptions" class="consumption-table">
+                <!-- Reading Date Column -->
+                <ng-container matColumnDef="readingDate">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>event</mat-icon> Date
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="water-cell">
+                    <mat-icon class="cell-icon">event</mat-icon>
+                    {{ consumption.readingDate | date:'mediumDate' }}
+                  </td>
+                </ng-container>
+
+                <!-- Consumption Column -->
+                <ng-container matColumnDef="cubicMeters">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>speed</mat-icon> Consumption (m³)
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="consumption-value water-cell">
+                    <mat-icon class="cell-icon">speed</mat-icon>
+                    {{ consumption.cubicMeters | number:'1.2-2' }} m³
+                  </td>
+                </ng-container>
+
+                <!-- Cost Column -->
+                <ng-container matColumnDef="waterCost">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>attach_money</mat-icon> Cost
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="water-cell">
+                    <mat-icon class="cell-icon">attach_money</mat-icon>
+                    {{ consumption.waterCost ? (consumption.waterCost | currency:'USD':'symbol':'1.2-2') : '-' }}
+                  </td>
+                </ng-container>
+
+                <!-- Source Column -->
+                <ng-container matColumnDef="source">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>source</mat-icon> Source
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="water-cell">
+                    <span [class]="'source-badge ' + (consumption.source?.toLowerCase() || 'manual')">
+                      <mat-icon>source</mat-icon>
+                      {{ consumption.source || 'Manual' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <!-- Previous Reading Column -->
+                <ng-container matColumnDef="previousReading">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>history</mat-icon> Previous
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="water-cell">
+                    <mat-icon class="cell-icon">history</mat-icon>
+                    {{ consumption.previousReading ? (consumption.previousReading | number:'1.2-2') + ' m³' : '-' }}
+                  </td>
+                </ng-container>
+
+                <!-- Note Column -->
+                <ng-container matColumnDef="note">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>note</mat-icon> Note
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="note-cell water-cell">
+                    <mat-icon class="cell-icon">note</mat-icon>
+                    {{ consumption.note || '-' }}
+                  </td>
+                </ng-container>
+
+                <!-- Meter Serial Column -->
+                <ng-container matColumnDef="meterSerialNumber">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>confirmation_number</mat-icon> Meter Serial
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="meter-info water-cell">
+                    <mat-icon class="cell-icon">confirmation_number</mat-icon>
+                    {{ consumption.meterSerialNumber || 'N/A' }}
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="actions-header water-header">
+                    <mat-icon>settings</mat-icon> Actions
+                  </th>
+                  <td mat-cell *matCellDef="let consumption" class="actions-cell water-cell">
+                    <div class="action-buttons">
+                      <button mat-icon-button color="primary" (click)="editConsumption(consumption.id)" 
+                             matTooltip="Edit record" class="action-btn edit-btn">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteConsumption(consumption.id)" 
+                             matTooltip="Delete record" class="action-btn delete-btn">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="water-header-row"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="water-data-row"></tr>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Empty State -->
-      <ng-template #emptyState>
-        <mat-card class="empty-state-card">
-          <mat-card-content>
-            <div class="empty-state">
-              <mat-icon>water_drop</mat-icon>
-              <h3>No water consumption records found</h3>
-              <p>Get started by adding your first water consumption record</p>
-              <button mat-raised-button color="primary" (click)="goToCreate()">
-                <mat-icon>add</mat-icon>
-                Create First Record
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </ng-template>
+        <!-- Empty State -->
+        <ng-template #emptyState>
+          <mat-card class="empty-state-card">
+            <mat-card-content>
+              <div class="empty-state">
+                <mat-icon class="empty-icon">water_drop</mat-icon>
+                <h3>No water consumption records found</h3>
+                <p *ngIf="activeFiltersCount > 0">No records match your current filters. Try adjusting your filter criteria.</p>
+                <p *ngIf="activeFiltersCount === 0">No water consumption data available</p>
+                <button *ngIf="activeFiltersCount > 0" mat-stroked-button (click)="clearAllFilters()" class="mt-2">
+                  <mat-icon>clear_all</mat-icon>
+                  Clear All Filters
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </ng-template>
+      </div>
     </main>
   </div>
 

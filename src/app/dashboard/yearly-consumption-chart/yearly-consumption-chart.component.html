@@ -1,0 +1,57 @@
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-title">
+      <mat-icon class="chart-icon">bar_chart</mat-icon>
+      <h3>Monthly Water Consumption - {{ selectedYear }}</h3>
+    </div>
+    <div class="chart-actions">
+      <button mat-icon-button (click)="loadChartData()" [disabled]="loading" matTooltip="Refresh data">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="chart-content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="chart-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading consumption data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="chart-error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-stroked-button (click)="loadChartData()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+
+    <!-- Chart -->
+    <div *ngIf="!loading && !error" class="chart-container">
+      <div echarts 
+           [options]="chartOptions" 
+           [loading]="loading" 
+           theme="default" 
+           class="chart">
+      </div>
+    </div>
+
+    <!-- Chart Stats -->
+    <div *ngIf="!loading && !error" class="chart-stats">
+      <div class="stat-item">
+        <span class="stat-label">Total {{ selectedYear }}</span>
+        <span class="stat-value">{{ getTotalConsumption() | number:'1.0-0' }} m³</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Avg Monthly</span>
+        <span class="stat-value">{{ getAverageMonthlyConsumption() | number:'1.0-0' }} m³</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Peak Month</span>
+        <span class="stat-value">{{ getPeakMonth() }}</span>
+      </div>
+    </div>
+  </div>
+</div>

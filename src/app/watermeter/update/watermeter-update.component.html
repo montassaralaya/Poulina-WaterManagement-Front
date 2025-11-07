@@ -32,38 +32,38 @@
 
         <mat-card-content>
           <form [formGroup]="waterMeterForm" (ngSubmit)="onSubmit()" class="meter-form">
-            <!-- Form Fields Grid -->
             <div class="form-grid">
-              <!-- Serial Number Field -->
+              
+              <!-- Serial Number -->
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Serial Number</mat-label>
                 <input matInput formControlName="serialNumber" placeholder="Enter unique serial number" />
                 <mat-icon matPrefix>confirmation_number</mat-icon>
                 <mat-hint>Required field. Maximum 50 characters.</mat-hint>
-                <mat-error *ngIf="waterMeterForm.controls.serialNumber.invalid">
-                  <span *ngIf="waterMeterForm.controls.serialNumber.errors?.['required']">
+                <mat-error *ngIf="waterMeterForm.controls['serialNumber'].invalid">
+                  <span *ngIf="waterMeterForm.controls['serialNumber'].errors?.['required']">
                     Serial number is required
                   </span>
-                  <span *ngIf="waterMeterForm.controls.serialNumber.errors?.['maxlength']">
+                  <span *ngIf="waterMeterForm.controls['serialNumber'].errors?.['maxlength']">
                     Serial number cannot exceed 50 characters
                   </span>
                 </mat-error>
               </mat-form-field>
 
-              <!-- Branch ID Field -->
+              <!-- Branch ID -->
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Branch ID</mat-label>
                 <input matInput formControlName="branchId" placeholder="Enter branch identifier" />
                 <mat-icon matPrefix>business</mat-icon>
                 <mat-hint>Required field</mat-hint>
-                <mat-error *ngIf="waterMeterForm.controls.branchId.invalid">
-                  <span *ngIf="waterMeterForm.controls.branchId.errors?.['required']">
+                <mat-error *ngIf="waterMeterForm.controls['branchId'].invalid">
+                  <span *ngIf="waterMeterForm.controls['branchId'].errors?.['required']">
                     Branch ID is required
                   </span>
                 </mat-error>
               </mat-form-field>
 
-              <!-- Status Field -->
+              <!-- Status -->
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Status</mat-label>
                 <mat-select formControlName="status">
@@ -80,7 +80,31 @@
                 <mat-hint>Select the current status of the water meter</mat-hint>
               </mat-form-field>
 
-              <!-- Additional Information Section -->
+              <!-- Installed At -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Installed At</mat-label>
+                <input matInput type="date" formControlName="installedAt" />
+                <mat-icon matPrefix>calendar_today</mat-icon>
+                <mat-hint>Select installation date</mat-hint>
+              </mat-form-field>
+
+              <!-- Last Maintenance -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Last Maintenance</mat-label>
+                <input matInput type="date" formControlName="lastMaintenance" />
+                <mat-icon matPrefix>build</mat-icon>
+                <mat-hint>Last maintenance date</mat-hint>
+              </mat-form-field>
+
+              <!-- Meter Type -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Meter Type</mat-label>
+                <input matInput type="text" formControlName="meterType" placeholder="Enter meter type" />
+                <mat-icon matPrefix>device_hub</mat-icon>
+                <mat-hint>Optional field</mat-hint>
+              </mat-form-field>
+
+              <!-- Info Section -->
               <div class="info-section">
                 <h3 class="section-title"><mat-icon>info</mat-icon> Update Information</h3>
                 <p class="section-description">

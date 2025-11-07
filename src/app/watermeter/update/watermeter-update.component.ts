@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WaterMeterService, CreateWaterMeter, WaterMeterResponse } from '../watermeter.service';
 import { CommonModule } from '@angular/common';
@@ -35,13 +35,9 @@ import { FooterComponent } from '../../layout/footer/footer.component';
   styleUrls: ['./watermeter-update.component.scss']
 })
 export class WaterMeterUpdateComponent implements OnInit {
-  waterMeterForm = this.fb.group({
-    serialNumber: ['', [Validators.required, Validators.maxLength(50)]],
-    branchId: ['', Validators.required],
-    status: ['Active', Validators.required]
-  });
+  waterMeterForm!: FormGroup;
 
-  statusOptions: string[] = ['Active', 'Maintenance', 'Disabled'];
+  statusOptions: Array<'Active' | 'Maintenance' | 'Disabled'> = ['Active', 'Maintenance', 'Disabled'];
   isSubmitting = false;
   meterId!: string;
   isLoading = true;
@@ -55,16 +51,31 @@ export class WaterMeterUpdateComponent implements OnInit {
 
   ngOnInit() {
     this.meterId = this.route.snapshot.paramMap.get('id')!;
+    this.initForm();
     this.loadWaterMeter();
+  }
+
+  initForm() {
+    this.waterMeterForm = this.fb.group({
+      serialNumber: ['', [Validators.required, Validators.maxLength(50)]],
+      branchId: ['', Validators.required],
+      status: ['Active', Validators.required],
+      installedAt: [null],
+      lastMaintenance: [null],
+      meterType: ['']
+    });
   }
 
   loadWaterMeter() {
     this.waterMeterService.getById(this.meterId).subscribe({
       next: (data: WaterMeterResponse) => {
         this.waterMeterForm.patchValue({
-          serialNumber: data.serialNumber,
-          branchId: data.branchId,
-          status: data.status
+          serialNumber: data.serialNumber || '',
+          branchId: data.branchId || '',
+          status: (data.status as 'Active' | 'Maintenance' | 'Disabled') || 'Active',
+          installedAt: data['installedAt'] || null,
+          lastMaintenance: data['lastMaintenance'] || null,
+          meterType: data['meterType'] || ''
         });
         this.isLoading = false;
       },
@@ -80,7 +91,16 @@ export class WaterMeterUpdateComponent implements OnInit {
     if (this.waterMeterForm.invalid) return;
     this.isSubmitting = true;
 
-    const data = this.waterMeterForm.value as CreateWaterMeter;
+    const formValue = this.waterMeterForm.value;
+
+    const data: CreateWaterMeter = {
+      serialNumber: formValue['serialNumber']!,
+      branchId: formValue['branchId']!,
+      status: formValue['status'] ?? 'Active',
+      installedAt: formValue['installedAt'] || null,
+      lastMaintenance: formValue['lastMaintenance'] || null,
+      meterType: formValue['meterType'] || null
+    };
 
     this.waterMeterService.update(this.meterId, data).subscribe({
       next: () => {
@@ -98,8 +118,8 @@ export class WaterMeterUpdateComponent implements OnInit {
 
   onCancel() {
     if (this.waterMeterForm.dirty) {
-      const confirm = window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
-      if (!confirm) return;
+      const confirmCancel = window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
+      if (!confirmCancel) return;
     }
     this.router.navigate(['/watermeter/list']);
   }

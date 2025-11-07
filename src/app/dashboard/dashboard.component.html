@@ -1,109 +1,216 @@
 <div class="app-container">
-    <app-header></app-header>
+  <app-header></app-header>
+  
+  <div class="main-content-container">
+    <app-sidebar></app-sidebar>
     
-    <div class="main-content-container">
-      <app-sidebar></app-sidebar>
-      
-      <main class="content-area">
-        <div class="content-header">
-          <h2>Water Management Dashboard</h2>
+    <main class="content-area">
+      <div class="content-header">
+        <h2>Water Management Dashboard</h2>
+        <div class="header-actions">
+          <button mat-button (click)="refreshData()" [disabled]="isLoading">
+            <mat-icon>refresh</mat-icon>
+            Refresh
+          </button>
           <div class="date-filter">
             <mat-icon>calendar_today</mat-icon>
-            <span>Last 30 Days</span>
-            <mat-icon>arrow_drop_down</mat-icon>
+            <span>Real-time Data</span>
           </div>
         </div>
-  
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-          <div class="stat-card blue">
-            <div class="card-content">
-              <mat-icon>water_drop</mat-icon>
-              <div>
-                <h3>Total Consumption</h3>
-                <p>12,560 m³</p>
-              </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading dashboard data...</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div *ngIf="!isLoading" class="stats-grid">
+        <div class="stat-card blue">
+          <div class="card-content">
+            <mat-icon>water_drop</mat-icon>
+            <div>
+              <h3>Total Consumption</h3>
+              <p>{{ totalConsumption | number:'1.0-0' }} m³</p>
+              <small>{{ totalRecords }} records across {{ totalBranches }} branches</small>
             </div>
-            <div class="trend positive">+2.4%</div>
           </div>
-  
-          <div class="stat-card green">
-            <div class="card-content">
-              <mat-icon>check_circle</mat-icon>
-              <div>
-                <h3>Quality Compliance</h3>
-                <p>98.7%</p>
-              </div>
-            </div>
-            <div class="trend positive">+0.8%</div>
-          </div>
-  
-          <div class="stat-card orange">
-            <div class="card-content">
-              <mat-icon>warning</mat-icon>
-              <div>
-                <h3>Active Alerts</h3>
-                <p>3 Issues</p>
-              </div>
-            </div>
-            <div class="trend negative">+1</div>
-          </div>
-  
-          <div class="stat-card purple">
-            <div class="card-content">
-              <mat-icon>savings</mat-icon>
-              <div>
-                <h3>Cost Savings</h3>
-                <p>$24,580</p>
-              </div>
-            </div>
-            <div class="trend positive">+5.2%</div>
-          </div>
+          <div class="trend positive">{{ averageConsumption | number:'1.1-1' }} m³ avg</div>
         </div>
-  
-        <!-- Charts Section -->
-        <div class="charts-container">
-          <div class="chart-card">
-            <h3>Water Consumption Trend</h3>
-            <div class="chart-placeholder">Consumption Chart</div>
+
+        <div class="stat-card green">
+          <div class="card-content">
+            <mat-icon>attach_money</mat-icon>
+            <div>
+              <h3>Total Water Cost</h3>
+              <p>{{ totalWaterCost | currency:'USD':'symbol':'1.0-0' }}</p>
+              <small>Overall water expenses</small>
+            </div>
           </div>
-          <div class="chart-card">
-            <h3>Regional Distribution</h3>
-            <div class="chart-placeholder">Distribution Chart</div>
-          </div>
+          <div class="trend positive">{{ (totalWaterCost / totalConsumption) | number:'1.2-2' }}/m³</div>
         </div>
-  
-        <!-- Recent Activity -->
-        <div class="recent-activity">
+
+        <div class="stat-card orange">
+          <div class="card-content">
+            <mat-icon>warning</mat-icon>
+            <div>
+              <h3>Active Alerts</h3>
+              <p>{{ getActiveAlerts() }} Issues</p>
+              <small>Requiring attention</small>
+            </div>
+          </div>
+          <div *ngIf="getActiveAlerts() > 0" class="trend negative">Action needed</div>
+          <div *ngIf="getActiveAlerts() === 0" class="trend positive">All clear</div>
+        </div>
+
+        <div class="stat-card purple">
+          <div class="card-content">
+            <mat-icon>savings</mat-icon>
+            <div>
+              <h3>Year {{ selectedYear }} Summary</h3>
+              <p>{{ getSelectedYearConsumption() | number:'1.0-0' }} m³</p>
+              <small>{{ getRecordsInSelectedYear() }} records, {{ getBranchesInSelectedYear() }} branches</small>
+            </div>
+          </div>
+          <div class="trend positive">{{ getSelectedYearCost() | currency:'USD':'symbol':'1.0-0' }}</div>
+        </div>
+      </div>
+
+      <!-- Year Selector -->
+      <div *ngIf="!isLoading" class="year-selector-container">
+        <mat-form-field class="year-selector">
+          <mat-label>Select Year</mat-label>
+          <mat-select [(ngModel)]="selectedYear" (selectionChange)="onYearChange()">
+            <mat-option *ngFor="let year of availableYears" [value]="year">
+              {{ year }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Charts Section with Tabs -->
+      <div *ngIf="!isLoading" class="charts-section">
+        <div class="chart-tabs-container">
+          <mat-tab-group 
+            [(selectedIndex)]="selectedChartTab" 
+            (selectedIndexChange)="onChartTabChange($event)"
+            animationDuration="500"
+            class="chart-tabs">
+            
+            <!-- Monthly Consumption Tab -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>bar_chart</mat-icon>
+                Monthly Consumption
+              </ng-template>
+              <div class="tab-content">
+                <app-yearly-consumption-chart [selectedYear]="selectedYear"></app-yearly-consumption-chart>
+              </div>
+            </mat-tab>
+
+            <!-- Cost Analysis Tab -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>trending_up</mat-icon>
+                Cost Analysis
+              </ng-template>
+              <div class="tab-content">
+                <app-water-cost-chart [selectedYear]="selectedYear"></app-water-cost-chart>
+              </div>
+            </mat-tab>
+
+            <!-- Branch Heatmap Tab -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>grid_on</mat-icon>
+                Branch Heatmap
+              </ng-template>
+              <div class="tab-content">
+                <app-consumption-heatmap-chart [selectedYear]="selectedYear"></app-consumption-heatmap-chart>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div *ngIf="!isLoading" class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-buttons">
+          <button mat-stroked-button routerLink="/waterconsumption">
+            <mat-icon>list</mat-icon>
+            View All Records
+          </button>
+          <button mat-stroked-button routerLink="/waterconsumption/charts">
+            <mat-icon>show_chart</mat-icon>
+            View Analytics
+          </button>
+          <button mat-stroked-button routerLink="/branches">
+            <mat-icon>business</mat-icon>
+            Manage Branches
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div *ngIf="!isLoading" class="recent-activity">
+        <div class="activity-header">
           <h3>Recent Activity</h3>
-          <div class="activity-list">
-            <div class="activity-item">
-              <mat-icon class="activity-icon">warning</mat-icon>
-              <div>
-                <p>Pressure alert in Zone B</p>
-                <small>10 minutes ago</small>
+          <button mat-button routerLink="/waterconsumption">View All</button>
+        </div>
+        <div class="activity-list">
+          <div *ngFor="let activity of recentActivity" class="activity-item">
+            <mat-icon [class]="'activity-icon ' + activity.type">{{ activity.icon }}</mat-icon>
+            <div class="activity-content">
+              <p>{{ activity.message }}</p>
+              <small>{{ activity.time }}</small>
+              <div class="activity-details" *ngIf="activity.branch || activity.meter">
+                <span class="branch-info" *ngIf="activity.branch">
+                  <mat-icon>business</mat-icon>
+                  {{ activity.branch.name }} - {{ activity.branch.address }}
+                </span>
+                <span class="meter-info" *ngIf="activity.meter">
+                  <mat-icon>speed</mat-icon>
+                  Meter: {{ activity.meter.serialNumber }}
+                </span>
               </div>
             </div>
-            <div class="activity-item">
-              <mat-icon class="activity-icon">assignment</mat-icon>
-              <div>
-                <p>Monthly report generated</p>
-                <small>2 hours ago</small>
-              </div>
-            </div>
-            <div class="activity-item">
-              <mat-icon class="activity-icon">engineering</mat-icon>
-              <div>
-                <p>Maintenance completed at Station #5</p>
-                <small>Yesterday</small>
-              </div>
+            <div class="consumption-badge" *ngIf="activity.consumption.cubicMeters">
+              {{ activity.consumption.cubicMeters | number:'1.1-1' }} m³
             </div>
           </div>
+          <div *ngIf="recentActivity.length === 0" class="no-activity">
+            <mat-icon>info</mat-icon>
+            <p>No recent activity found</p>
+          </div>
         </div>
-      </main>
-    </div>
-    
-    <app-footer></app-footer>
+      </div>
+
+      <!-- Branch Overview -->
+      <div *ngIf="!isLoading && totalBranches > 0" class="branch-overview">
+        <h3>Branch Overview</h3>
+        <div class="branch-stats">
+          <div class="branch-stat">
+            <mat-icon>business</mat-icon>
+            <span>{{ totalBranches }} Active Branches</span>
+          </div>
+          <div class="branch-stat">
+            <mat-icon>speed</mat-icon>
+            <span>{{ totalRecords }} Total Readings</span>
+          </div>
+          <div class="branch-stat">
+            <mat-icon>trending_up</mat-icon>
+            <span>{{ averageConsumption | number:'1.1-1' }} m³ Average</span>
+          </div>
+          <div class="branch-stat">
+            <mat-icon>attach_money</mat-icon>
+            <span>{{ totalWaterCost | currency:'USD':'symbol':'1.0-0' }} Total Cost</span>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
   
-  
+  <app-footer></app-footer>
+</div>

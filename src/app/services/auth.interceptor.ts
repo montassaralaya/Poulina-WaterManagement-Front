@@ -1,22 +1,30 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler } from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthInterceptor implements HttpInterceptor {
-  intercept(req: HttpRequest<any>, next: HttpHandler) {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (req.url.includes('/api/Auth/')) {
+      return next.handle(req);
+    }
+
     const token = localStorage.getItem('token');
-    console.log('[Interceptor] token from localStorage:', token);
+    console.log(`[AuthInterceptor] ${req.method} ${req.url}`);
+    console.log('[AuthInterceptor] Token exists:', !!token);
 
     if (token) {
-      // Add 'Bearer ' exactly like Swagger expects
       const cloned = req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`),
+        headers: req.headers.set('Authorization', `Bearer ${token}`)
       });
-      console.log('[Interceptor] Sending request with headers:', cloned.headers.get('Authorization'));
+      
+      // Log the actual header being sent
+      console.log('[AuthInterceptor] Authorization header:', `Bearer ${token.substring(0, 20)}...`);
+      
       return next.handle(cloned);
     }
 
-    console.log('[Interceptor] No token found, sending request without Authorization header');
+    console.log('[AuthInterceptor] No token found');
     return next.handle(req);
   }
 }

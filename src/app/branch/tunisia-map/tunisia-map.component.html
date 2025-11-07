@@ -1,0 +1,330 @@
+<div class="app-container" [class.fullscreen]="isMapFullscreen">
+  <app-header></app-header>
+
+  <div class="main-content-container">
+    <app-sidebar></app-sidebar>
+
+    <main class="content-area">
+      <!-- Header -->
+      <div class="content-header">
+        <div class="header-content">
+          <div class="title-section">
+            <h2>
+              <mat-icon class="header-icon">map</mat-icon>
+              Branches Map - Tunisia
+            </h2>
+            <p class="subtitle">Interactive map showing all Poulina branches across Tunisia</p>
+          </div>
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="showAllBranches()" class="action-btn">
+              <mat-icon>zoom_out_map</mat-icon> Show All
+            </button>
+            <button mat-raised-button color="accent" (click)="toggleMapFullscreen()" class="action-btn">
+              <mat-icon>{{ isMapFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+              {{ isMapFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}
+            </button>
+            <button mat-raised-button color="primary" [routerLink]="['/branches/list']" class="action-btn">
+              <mat-icon>list</mat-icon> List View
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Bar -->
+      <div class="controls-bar">
+        <div class="search-controls">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search branches</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()" 
+                   placeholder="Search by name, address, or phone...">
+            <mat-icon matPrefix>search</mat-icon>
+            <button mat-icon-button matSuffix (click)="searchTerm = ''; applyFilters()" *ngIf="searchTerm">
+              <mat-icon>clear</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="region-selector">
+            <mat-label>Filter by Region</mat-label>
+            <mat-select [(ngModel)]="selectedRegion" (selectionChange)="applyFilters()">
+              <mat-option value="all">All Regions</mat-option>
+              <mat-option *ngFor="let region of regions" [value]="region.name">
+                {{ region.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-stroked-button (click)="clearFilters()" *ngIf="activeFiltersCount > 0" class="clear-filters-btn">
+            <mat-icon>clear_all</mat-icon>
+            Clear Filters ({{ activeFiltersCount }})
+          </button>
+        </div>
+
+        <div class="map-controls">
+          <button mat-stroked-button (click)="locateUser()" class="control-btn">
+            <mat-icon>my_location</mat-icon>
+            Locate Me
+          </button>
+          <button mat-stroked-button (click)="exportMapData()" class="control-btn">
+            <mat-icon>download</mat-icon>
+            Export Data
+          </button>
+          <button mat-stroked-button (click)="loadBranches()" [disabled]="isLoading" class="control-btn">
+            <mat-icon>refresh</mat-icon>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Summary -->
+      <div class="filter-summary" *ngIf="activeFiltersCount > 0">
+        <div class="filter-summary-content">
+          <mat-icon>filter_list</mat-icon>
+          <span class="filter-text">
+            Showing {{ filteredBranches.length }} of {{ branches.length }} branches
+            <span *ngIf="searchTerm">matching "{{ searchTerm }}"</span>
+            <span *ngIf="selectedRegion !== 'all'">in {{ selectedRegion }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-container" *ngIf="!isLoading">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ branches.length }}</div>
+            <div class="stat-label">Total Branches</div>
+            <mat-icon class="stat-icon">location_city</mat-icon>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ stats.mapped }}</div>
+            <div class="stat-label">Mapped Branches</div>
+            <mat-icon class="stat-icon">place</mat-icon>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ stats.unmapped }}</div>
+            <div class="stat-label">Unmapped Branches</div>
+            <mat-icon class="stat-icon">location_off</mat-icon>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ regions.length }}</div>
+            <div class="stat-label">Regions</div>
+            <mat-icon class="stat-icon">public</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="map-container-wrapper" [class.fullscreen]="isMapFullscreen">
+        <!-- Branches Sidebar -->
+        <mat-card class="branches-sidebar" *ngIf="!isMapFullscreen">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>business</mat-icon> 
+              Branches List
+              <span class="branch-count">({{ filteredBranches.length }})</span>
+            </mat-card-title>
+            <mat-card-subtitle>Click to zoom and view details</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="branches-list" *ngIf="filteredBranches.length > 0; else noBranches">
+              <div 
+                *ngFor="let branch of filteredBranches" 
+                class="branch-item" 
+                [class.selected]="selectedBranch?.id === branch.id"
+                (click)="zoomToBranch(branch)"
+              >
+                <div class="branch-info">
+                  <h4 class="branch-name">{{ branch.name }}</h4>
+                  <p class="branch-address">{{ branch.address || 'No address available' }}</p>
+                  <div class="branch-meta">
+                    <span class="branch-phone" *ngIf="branch.phone">
+                      <mat-icon>phone</mat-icon> {{ branch.phone }}
+                    </span>
+                    <div class="branch-coordinates" *ngIf="branch.latitude && branch.longitude">
+                      <mat-icon>map</mat-icon>
+                      <span class="coordinate">{{ branch.latitude | number:'1.4-4' }}, {{ branch.longitude | number:'1.4-4' }}</span>
+                    </div>
+                    <div class="branch-coordinates" *ngIf="!branch.latitude || !branch.longitude">
+                      <mat-icon>location_off</mat-icon>
+                      <span class="no-coordinates">No coordinates</span>
+                    </div>
+                  </div>
+                </div>
+                <mat-icon class="branch-icon">place</mat-icon>
+              </div>
+            </div>
+
+            <ng-template #noBranches>
+              <div class="no-branches-message">
+                <mat-icon>search_off</mat-icon>
+                <h4>No branches found</h4>
+                <p>No branches match your current filters</p>
+                <button mat-stroked-button (click)="clearFilters()">
+                  <mat-icon>clear_all</mat-icon>
+                  Clear Filters
+                </button>
+              </div>
+            </ng-template>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Map Card -->
+        <mat-card class="map-card" [class.fullscreen]="isMapFullscreen">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>explore</mat-icon> 
+              Interactive Map
+              <span class="map-stats" *ngIf="!isMapFullscreen">
+                ({{ filteredBranches.length }} branches)
+              </span>
+            </mat-card-title>
+            <mat-card-subtitle>
+              Click on markers or use region overlays to explore
+              <span class="user-location" *ngIf="userLocation">
+                • Your location: {{ userLocation.lat | number:'1.4-4' }}, {{ userLocation.lng | number:'1.4-4' }}
+              </span>
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="loading-spinner" *ngIf="isLoading">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Loading branches and map data...</p>
+            </div>
+
+            <div id="map" class="map-display" [class.loading]="isLoading"></div>
+
+            <div class="map-legend">
+              <div class="legend-title">Map Legend</div>
+              <div class="legend-items">
+                <div class="legend-item">
+                  <div class="legend-marker branch-marker"><mat-icon>business</mat-icon></div>
+                  <span>Poulina Branch</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-marker cluster-marker">3</div>
+                  <span>Branch Cluster</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-marker user-marker"><mat-icon>person_pin</mat-icon></div>
+                  <span>Your Location</span>
+                </div>
+                <div class="legend-item" *ngFor="let region of regions">
+                  <div class="legend-color" [style.background-color]="getRegionColor(region.name)"></div>
+                  <span>{{ region.name }} Region</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Selected Branch Details -->
+      <mat-card class="details-card" *ngIf="selectedBranch && !isMapFullscreen">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon> 
+            Branch Details: {{ selectedBranch.name }}
+          </mat-card-title>
+          <button mat-icon-button (click)="selectedBranch = null">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="branch-details-grid">
+            <div class="detail-item">
+              <mat-icon>business</mat-icon>
+              <div class="detail-content">
+                <label>Branch Name</label>
+                <span>{{ selectedBranch.name }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>location_on</mat-icon>
+              <div class="detail-content">
+                <label>Address</label>
+                <span>{{ selectedBranch.address || 'Not available' }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>phone</mat-icon>
+              <div class="detail-content">
+                <label>Phone</label>
+                <span>{{ selectedBranch.phone || 'Not available' }}</span>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="selectedBranch.latitude && selectedBranch.longitude">
+              <mat-icon>map</mat-icon>
+              <div class="detail-content">
+                <label>Coordinates</label>
+                <span>{{ selectedBranch.latitude | number:'1.4-4' }}, {{ selectedBranch.longitude | number:'1.4-4' }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>category</mat-icon>
+              <div class="detail-content">
+                <label>Status</label>
+                <span class="status-badge mapped" *ngIf="selectedBranch.latitude && selectedBranch.longitude">
+                  <mat-icon>check_circle</mat-icon>
+                  Mapped
+                </span>
+                <span class="status-badge unmapped" *ngIf="!selectedBranch.latitude || !selectedBranch.longitude">
+                  <mat-icon>location_off</mat-icon>
+                  Unmapped
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-actions">
+            <button mat-stroked-button color="primary" (click)="zoomToBranch(selectedBranch)">
+              <mat-icon>zoom_in</mat-icon>
+              Zoom to Branch
+            </button>
+            <button mat-stroked-button color="accent" [routerLink]="['/branches/edit', selectedBranch.id]">
+              <mat-icon>edit</mat-icon>
+              Edit Branch
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Region Statistics -->
+      <mat-card class="region-stats-card" *ngIf="!isMapFullscreen">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>analytics</mat-icon>
+            Regional Distribution
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="region-stats-grid">
+            <div *ngFor="let regionStat of stats.byRegion" class="region-stat-item">
+              <div class="region-name">{{ regionStat.name }}</div>
+              <div class="region-count">{{ regionStat.count }} branches</div>
+              <div class="region-bar">
+                <div class="region-bar-fill" 
+                     [style.width]="(regionStat.count / stats.mapped * 100) + '%'"
+                     [style.background]="getRegionColor(regionStat.name)">
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </div>
+
+  <app-footer *ngIf="!isMapFullscreen"></app-footer>
+</div>

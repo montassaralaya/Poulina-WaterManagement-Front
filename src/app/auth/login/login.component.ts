@@ -29,7 +29,6 @@ import { CommonModule } from '@angular/common';
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
-  
 })
 export class LoginComponent {
   loginForm: FormGroup;
@@ -98,30 +97,51 @@ export class LoginComponent {
 
     const { email, password } = this.loginForm.value;
 
+    console.log('[Login] Attempting login with:', email);
+
     this.authService.login(email, password).subscribe({
       next: (response) => {
+        console.log('[Login] Login response:', response);
+        
+        const token = this.authService.getToken();
+        console.log('[Login] Token after login:', token);
+        
         this.isLoading = false;
         this.snackBar.open('Login successful! Redirecting...', 'Close', {
-          duration: 3000,
+          duration: 2000,
           panelClass: ['success-snackbar']
         });
         
-        // Get return URL from query parameters or default to '/dashboard'
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+        console.log('[Login] Navigating to:', returnUrl);
         
-        setTimeout(() => {
-          this.router.navigateByUrl(returnUrl);
-        }, 3000);
+        // Navigate immediately
+        this.router.navigateByUrl(returnUrl).then(success => {
+          console.log('[Login] Navigation successful:', success);
+        }).catch(error => {
+          console.error('[Login] Navigation failed:', error);
+          this.router.navigate(['/dashboard']);
+        });
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.message || 'Invalid email or password.';
-        // FIX: Use a fallback message when errorMessage is null
+        console.error('[Login] Login error:', err);
         this.snackBar.open(this.errorMessage || 'Login failed', 'Dismiss', {
           duration: 5000,
           panelClass: ['error-snackbar']
         });
       }
+    });
+  }
+
+  // Temporary test method
+  testNavigation() {
+    console.log('Testing navigation to dashboard...');
+    this.router.navigate(['/dashboard']).then(success => {
+      console.log('Manual navigation success:', success);
+    }).catch(error => {
+      console.error('Manual navigation failed:', error);
     });
   }
 }

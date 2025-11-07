@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// Create DTO for Water Consumption
 export interface WaterConsumptionCreate {
   readingDate: string;
   cubicMeters: number;
   branchId: string;
   meterId?: string;
+  waterCost?: number | null;
+  source?: 'OCR' | 'Manual';
+  previousReading?: number | null;
+  note?: string | null;
 }
 
+// Response DTO
 export interface WaterConsumptionResponse {
   id: string;
   readingDate: string;
@@ -16,6 +22,10 @@ export interface WaterConsumptionResponse {
   branchId: string;
   meterId?: string;
   meterSerialNumber?: string;
+  waterCost?: number | null;
+  source?: 'OCR' | 'Manual';
+  previousReading?: number | null;
+  note?: string | null;
 }
 
 @Injectable({
@@ -31,7 +41,7 @@ export class WaterConsumptionService {
     return this.http.get<WaterConsumptionResponse[]>(this.apiUrl);
   }
 
-  // Get consumptions grouped by branch (optional helper for your display page)
+  // Get consumptions grouped by branch
   getAllConsumptionsGroupedByBranch(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/grouped-by-branch`);
   }
@@ -46,7 +56,7 @@ export class WaterConsumptionService {
     return this.http.post<WaterConsumptionResponse>(this.apiUrl, data);
   }
 
-  // ✅ Update existing consumption
+  // Update existing consumption
   update(id: string, data: WaterConsumptionCreate): Observable<WaterConsumptionResponse> {
     return this.http.put<WaterConsumptionResponse>(`${this.apiUrl}/${id}`, data);
   }

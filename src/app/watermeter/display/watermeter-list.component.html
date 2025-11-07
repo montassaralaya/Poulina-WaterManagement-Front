@@ -5,181 +5,341 @@
     <app-sidebar></app-sidebar>
 
     <main class="content-area">
-      <!-- Header Section -->
-      <div class="content-header">
-        <div class="header-content">
-          <div class="title-section">
-            <h2>
-              <mat-icon class="header-icon">water</mat-icon>
-              Water Meter Management
-            </h2>
-            <p class="subtitle">Monitor and manage all water meters across branches</p>
+      <div class="content-wrapper">
+        <!-- Header Section -->
+        <div class="content-header">
+          <div class="header-content">
+            <div class="title-section">
+              <h2>
+                <mat-icon class="header-icon">water</mat-icon>
+                Water Meter Management
+              </h2>
+              <p class="subtitle">Monitor and manage all water meters across branches</p>
+            </div>
+            
+            <div class="header-actions">
+              <!-- Create Button -->
+              <div class="create-container">
+                <button mat-raised-button color="primary" (click)="goToCreate()" class="create-button">
+                  <mat-icon>add</mat-icon>
+                  Add New Meter
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <!-- Search Bar -->
-          <div class="search-section">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Search water meters</mat-label>
-              <input matInput placeholder="Search by serial number, status, or branch" 
-                     [(ngModel)]="searchTerm" (input)="applyFilter()">
-              <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
-                <mat-icon>close</mat-icon>
-              </button>
+        <!-- Filter Summary -->
+        <div class="filter-summary" *ngIf="activeFiltersCount > 0">
+          <div class="filter-summary-content">
+            <mat-icon>filter_list</mat-icon>
+            <span class="filter-text">{{ getFilterSummary() }}</span>
+            <button mat-button color="warn" (click)="clearAllFilters()" class="clear-all-btn">
+              <mat-icon>clear_all</mat-icon>
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <mat-expansion-panel [(expanded)]="filterPanelExpanded" class="filters-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>tune</mat-icon>
+              Advanced Filters
+              <span class="filter-count-badge" *ngIf="activeFiltersCount > 0">
+                {{ activeFiltersCount }} active
+              </span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="filters-grid">
+            <!-- Serial Number Search -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Search Serial Numbers</mat-label>
+              <input matInput [(ngModel)]="serialNumberSearch" (input)="applyAllFilters()" 
+                     placeholder="Enter serial number...">
               <mat-icon matPrefix>search</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <div class="create-container">
-            <button mat-raised-button color="primary" class="create-button" (click)="goToCreate()">
-              <mat-icon>add</mat-icon>
-              Create New Water Meter
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats Overview -->
-      <div class="stats-container">
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ getTotalMeters() }}</div>
-            <div class="stat-label">Total Meters</div>
-            <mat-icon class="stat-icon">water_drop</mat-icon>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ getActiveMeters() }}</div>
-            <div class="stat-label">Active Meters</div>
-            <mat-icon class="stat-icon">check_circle</mat-icon>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-value">{{ getInactiveMeters() }}</div>
-            <div class="stat-label">Inactive Meters</div>
-            <mat-icon class="stat-icon">cancel</mat-icon>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="stat-card" *ngIf="searchTerm">
-          <mat-card-content>
-            <div class="stat-value">{{ getFilteredMeters() }}</div>
-            <div class="stat-label">Matching Results</div>
-            <mat-icon class="stat-icon">search</mat-icon>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Results Info -->
-      <div class="results-info" *ngIf="searchTerm && branchMetersList.length > 0">
-        <p>
-          Showing {{ getFilteredMeters() }} of {{ getTotalMeters() }} meters 
-          <span *ngIf="searchTerm">matching "{{ searchTerm }}"</span>
-          <button mat-button color="primary" (click)="clearSearch()" *ngIf="searchTerm">
-            Clear search
-          </button>
-        </p>
-      </div>
-
-      <!-- Branch Cards -->
-      <div *ngIf="filteredBranchMetersList.length > 0; else emptyState">
-        <div *ngFor="let branch of filteredBranchMetersList" class="branch-card">
-          <div class="branch-header">
-            <div class="branch-title">
-              <mat-icon>business</mat-icon>
-              <h3>Branch ID: {{ branch.branchId }}</h3>
-              <span class="meter-count">({{ branch.meters.length }} meter{{ branch.meters.length !== 1 ? 's' : '' }})</span>
-            </div>
-            <button mat-icon-button class="expand-button" (click)="toggleBranch(branch.branchId)">
-              <mat-icon>{{ isBranchExpanded(branch.branchId) ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </button>
-          </div>
-
-          <div *ngIf="isBranchExpanded(branch.branchId)" class="branch-content">
-            <table mat-table [dataSource]="branch.meters" class="meter-table mat-elevation-z1">
-              <!-- Serial Number Column -->
-              <ng-container matColumnDef="serialNumber">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>confirmation_number</mat-icon> Serial Number
-                </th>
-                <td mat-cell *matCellDef="let meter" class="serial-number">
-                  <mat-icon>tag</mat-icon>
-                  {{ meter.serialNumber }}
-                </td>
-              </ng-container>
-
-              <!-- Status Column -->
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>status</mat-icon> Status
-                </th>
-                <td mat-cell *matCellDef="let meter">
-                  <span class="status-badge" [ngClass]="meter.status.toLowerCase()">
-                    <mat-icon>{{ getStatusIcon(meter.status) }}</mat-icon>
-                    {{ meter.status }}
-                  </span>
-                </td>
-              </ng-container>
-
-              <!-- Installation Date Column -->
-              <ng-container matColumnDef="installationDate">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-icon>event</mat-icon> Installation Date
-                </th>
-                <td mat-cell *matCellDef="let meter">
-                  {{ meter.installationDate | date:'mediumDate' }}
-                </td>
-              </ng-container>
-
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="actions-header">
-                  <mat-icon>settings</mat-icon> Actions
-                </th>
-                <td mat-cell *matCellDef="let meter" class="actions-cell">
-                  <button mat-icon-button color="primary" (click)="editMeter(meter.id)" matTooltip="Edit meter">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="deleteMeter(meter.id)" matTooltip="Delete meter">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                  <button mat-icon-button color="accent" matTooltip="View details">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <ng-template #emptyState>
-        <mat-card class="empty-state-card">
-          <mat-card-content>
-            <div class="empty-state">
-              <mat-icon *ngIf="!searchTerm">water_drop</mat-icon>
-              <mat-icon *ngIf="searchTerm">search_off</mat-icon>
-              <h3>{{ searchTerm ? 'No matching water meters found' : 'No water meters found' }}</h3>
-              <p>{{ searchTerm ? 'No meters match your search for "' + searchTerm + '"' : 'Get started by adding your first water meter' }}</p>
-              <button mat-raised-button color="primary" (click)="goToCreate()">
-                <mat-icon>add</mat-icon>
-                {{ searchTerm ? 'Clear search and create' : 'Create First Water Meter' }}
-              </button>
-              <button mat-button color="primary" (click)="clearSearch()" *ngIf="searchTerm">
+              <button mat-icon-button matSuffix (click)="serialNumberSearch = ''; applyAllFilters()" *ngIf="serialNumberSearch">
                 <mat-icon>clear</mat-icon>
-                Clear search
               </button>
+            </mat-form-field>
+
+            <!-- Status Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Status</mat-label>
+              <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Statuses</mat-option>
+                <mat-option *ngFor="let status of availableStatuses" [value]="status">
+                  {{ status }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Branch Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Branch</mat-label>
+              <mat-select [(ngModel)]="selectedBranch" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Branches</mat-option>
+                <mat-option *ngFor="let branch of availableBranches" [value]="branch.id">
+                  {{ branch.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Meter Type Filter -->
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter by Meter Type</mat-label>
+              <mat-select [(ngModel)]="selectedMeterType" (selectionChange)="applyAllFilters()">
+                <mat-option [value]="null">All Types</mat-option>
+                <mat-option *ngFor="let type of availableMeterTypes" [value]="type">
+                  {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Installation Date Range -->
+            <div class="date-range-filter">
+              <h4>Installation Date Range</h4>
+              <div class="date-range-fields">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Start Date</mat-label>
+                  <input matInput [matDatepicker]="installStartPicker" 
+                         [(ngModel)]="installationDateRange.start" (dateChange)="applyAllFilters()">
+                  <mat-datepicker-toggle matSuffix [for]="installStartPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #installStartPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>End Date</mat-label>
+                  <input matInput [matDatepicker]="installEndPicker" 
+                         [(ngModel)]="installationDateRange.end" (dateChange)="applyAllFilters()">
+                  <mat-datepicker-toggle matSuffix [for]="installEndPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #installEndPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
             </div>
-          </mat-card-content>
-        </mat-card>
-      </ng-template>
+
+            <!-- Maintenance Date Range -->
+            <div class="date-range-filter">
+              <h4>Last Maintenance Date Range</h4>
+              <div class="date-range-fields">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Start Date</mat-label>
+                  <input matInput [matDatepicker]="maintenanceStartPicker" 
+                         [(ngModel)]="maintenanceDateRange.start" (dateChange)="applyAllFilters()">
+                  <mat-datepicker-toggle matSuffix [for]="maintenanceStartPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #maintenanceStartPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>End Date</mat-label>
+                  <input matInput [matDatepicker]="maintenanceEndPicker" 
+                         [(ngModel)]="maintenanceDateRange.end" (dateChange)="applyAllFilters()">
+                  <mat-datepicker-toggle matSuffix [for]="maintenanceEndPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #maintenanceEndPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button mat-stroked-button (click)="clearAllFilters()">
+              <mat-icon>clear</mat-icon>
+              Reset Filters
+            </button>
+            <button mat-raised-button color="primary" (click)="filterPanelExpanded = false">
+              <mat-icon>check</mat-icon>
+              Apply Filters
+            </button>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Statistics Overview -->
+        <div class="stats-container">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getTotalMeters() }}</div>
+              <div class="stat-label">Total Meters</div>
+              <mat-icon class="stat-icon">water_drop</mat-icon>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getActiveMeters() }}</div>
+              <div class="stat-label">Active Meters</div>
+              <mat-icon class="stat-icon">check_circle</mat-icon>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getInactiveMeters() }}</div>
+              <div class="stat-label">Inactive Meters</div>
+              <mat-icon class="stat-icon">cancel</mat-icon>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-value">{{ getMaintenanceMeters() }}</div>
+              <div class="stat-label">In Maintenance</div>
+              <mat-icon class="stat-icon">build</mat-icon>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card" *ngIf="activeFiltersCount > 0">
+            <mat-card-content>
+              <div class="stat-value">{{ getFilteredMeters() }}</div>
+              <div class="stat-label">Filtered Results</div>
+              <mat-icon class="stat-icon">filter_list</mat-icon>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Branch Cards -->
+        <div *ngIf="branchMetersList.length > 0; else emptyState">
+          <div *ngFor="let branch of branchMetersList" class="branch-card">
+            <div class="branch-header">
+              <div class="branch-title">
+                <mat-icon>business</mat-icon>
+                <div class="branch-info">
+                  <h3>{{ branch.branchName }}</h3>
+                  <div class="branch-details">
+                    <span class="branch-id">ID: {{ branch.branchId }}</span>
+                  </div>
+                </div>
+                <span class="meter-count">
+                  ({{ branch.meters.length }} meter{{ branch.meters.length !== 1 ? 's' : '' }})
+                </span>
+              </div>
+              <div class="branch-actions">
+                <button mat-icon-button class="expand-button" (click)="toggleBranch(branch.branchId)">
+                  <mat-icon>{{ isBranchExpanded(branch.branchId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="isBranchExpanded(branch.branchId)" class="branch-content">
+              <table mat-table [dataSource]="branch.meters" class="meter-table">
+                
+                <!-- Serial Number -->
+                <ng-container matColumnDef="serialNumber">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>tag</mat-icon> Serial Number
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="serial-number water-cell">
+                    <mat-icon class="cell-icon">tag</mat-icon>
+                    {{ meter.serialNumber }}
+                  </td>
+                </ng-container>
+
+                <!-- Status -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>status</mat-icon> Status
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="water-cell">
+                    <span [class]="'status-badge ' + getStatusClass(meter.status)">
+                      <mat-icon>{{ getStatusIcon(meter.status) }}</mat-icon>
+                      {{ meter.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <!-- Branch Name -->
+                <ng-container matColumnDef="branchName">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>business</mat-icon> Branch
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="water-cell">
+                    <mat-icon class="cell-icon">business</mat-icon>
+                    {{ branch.branchName }}
+                  </td>
+                </ng-container>
+
+                <!-- Installed At -->
+                <ng-container matColumnDef="installedAt">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>calendar_today</mat-icon> Installed At
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="water-cell">
+                    <mat-icon class="cell-icon">calendar_today</mat-icon>
+                    {{ meter.installedAt ? (meter.installedAt | date:'mediumDate') : 'N/A' }}
+                  </td>
+                </ng-container>
+
+                <!-- Last Maintenance -->
+                <ng-container matColumnDef="lastMaintenance">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>build</mat-icon> Last Maintenance
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="water-cell">
+                    <mat-icon class="cell-icon">build</mat-icon>
+                    {{ meter.lastMaintenance ? (meter.lastMaintenance | date:'mediumDate') : 'N/A' }}
+                  </td>
+                </ng-container>
+
+                <!-- Meter Type -->
+                <ng-container matColumnDef="meterType">
+                  <th mat-header-cell *matHeaderCellDef class="water-header">
+                    <mat-icon>speed</mat-icon> Meter Type
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="water-cell">
+                    <mat-icon class="cell-icon">speed</mat-icon>
+                    {{ meter.meterType || 'N/A' }}
+                  </td>
+                </ng-container>
+
+                <!-- Actions -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="actions-header water-header">
+                    <mat-icon>settings</mat-icon> Actions
+                  </th>
+                  <td mat-cell *matCellDef="let meter" class="actions-cell water-cell">
+                    <div class="action-buttons">
+                      <button mat-icon-button color="primary" (click)="editMeter(meter.id)" 
+                             matTooltip="Edit meter" class="action-btn edit-btn">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteMeter(meter.id)" 
+                             matTooltip="Delete meter" class="action-btn delete-btn">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="water-header-row"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="water-data-row"></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <ng-template #emptyState>
+          <mat-card class="empty-state-card">
+            <mat-card-content>
+              <div class="empty-state">
+                <mat-icon class="empty-icon">water_drop</mat-icon>
+                <h3>No water meters found</h3>
+                <p *ngIf="activeFiltersCount > 0">No meters match your current filters. Try adjusting your filter criteria.</p>
+                <p *ngIf="activeFiltersCount === 0">Get started by adding your first water meter</p>
+                <button mat-raised-button color="primary" (click)="goToCreate()" class="create-action-btn">
+                  <mat-icon>add</mat-icon>
+                  Create First Meter
+                </button>
+                <button *ngIf="activeFiltersCount > 0" mat-stroked-button (click)="clearAllFilters()" class="mt-2">
+                  <mat-icon>clear_all</mat-icon>
+                  Clear All Filters
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </ng-template>
+      </div>
     </main>
   </div>
 

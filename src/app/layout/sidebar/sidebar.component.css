@@ -2,21 +2,14 @@
   width: 250px;
   background-color: #fff;
   padding: 20px 0;
-  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 3px 0 6px rgba(0,0,0,0.05);
   height: calc(100vh - 70px);
   position: sticky;
   top: 70px;
 }
 
-.sidebar ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.sidebar li {
-  list-style: none;
-}
+.sidebar ul { list-style: none; padding-left: 0; margin: 0; }
+.sidebar li { list-style: none; }
 
 /* clickable links */
 .sidebar a {
@@ -57,9 +50,7 @@
   transition: transform 0.3s ease;
 }
 
-.chevron.rotated {
-  transform: rotate(180deg);
-}
+.chevron.rotated { transform: rotate(180deg); }
 
 /* Submenus */
 .sidebar-submenu {

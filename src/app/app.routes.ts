@@ -12,9 +12,11 @@ import { WaterMeterUpdateComponent } from './watermeter/update/watermeter-update
 import { DisplayWaterConsumptionComponent } from './WaterConsumption/display-water-consumption/display-water-consumption.component';
 import { CreateWaterConsumptionComponent } from './WaterConsumption/create-water-consumption/create-water-consumption.component';
 import { UpdateWaterConsumptionComponent } from './WaterConsumption/update-water-consumption/update-water-consumption.component';
-import { BranchWaterChartComponent } from './WaterConsumption/branch-water-chart/branch-water-chart.component';
+
 import { HomeComponent } from './pages/home/home.component';
 import { DocumentationComponent } from './pages/documentation/documentation.component';
+import { TunisiaMapComponent } from './branch/tunisia-map/tunisia-map.component';
+import { ChartsComponent } from './WaterConsumption/charts/charts.component';
 
 
 
@@ -32,7 +34,11 @@ export const routes: Routes = [
   { path: 'waterconsumption/list', component: DisplayWaterConsumptionComponent,canActivate: [authGuard] },
   { path: 'waterconsumption/create', component: CreateWaterConsumptionComponent,canActivate: [authGuard] },
   { path: 'waterconsumption/update/:id', component: UpdateWaterConsumptionComponent,canActivate: [authGuard] },
-  { path: 'waterconsumption/chart/:branchId', component: BranchWaterChartComponent,canActivate: [authGuard] },
+  { path: 'waterconsumption/charts/:branchId', component: ChartsComponent, canActivate: [authGuard] },
+  { path: 'branches-map', component: TunisiaMapComponent,canActivate: [authGuard] },
+  
+  
+  
   {
   path: 'profile',
   loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)

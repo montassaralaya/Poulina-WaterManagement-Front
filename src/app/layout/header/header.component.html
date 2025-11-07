@@ -6,7 +6,12 @@
     </div>
   </div>
   <div class="header-right">
-    <div class="notification-container">
+    <!-- Temporary debug button -->
+    <button mat-button (click)="debugAuth()" *ngIf="isAuthenticated" style="margin-right: 10px;">
+      Debug Auth
+    </button>
+
+    <div class="notification-container" *ngIf="isAuthenticated">
       <button mat-icon-button class="notification-btn">
         <div class="notification-icon-wrapper">
           <mat-icon class="notification-icon">notifications</mat-icon>
@@ -22,19 +27,22 @@
         <mat-icon>arrow_drop_down</mat-icon>
       </button>
       <mat-menu #userMenu="matMenu">
-        <button mat-menu-item (click)="goToProfile()">
+        <button mat-menu-item (click)="goToProfile()" *ngIf="isAuthenticated">
           <mat-icon>person</mat-icon>
           <span>Profile</span>
         </button>
-        <button mat-menu-item disabled>
+        <button mat-menu-item disabled *ngIf="isAuthenticated">
           <mat-icon>settings</mat-icon>
           <span>Settings</span>
         </button>
-        <mat-divider></mat-divider>
+        <mat-divider *ngIf="isAuthenticated"></mat-divider>
         <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Logout</span>
+          <mat-icon>{{ isAuthenticated ? 'logout' : 'login' }}</mat-icon>
+          <span>{{ isAuthenticated ? 'Logout' : 'Login' }}</span>
         </button>
+        <button mat-button (click)="testBackend()" *ngIf="isAuthenticated" style="margin-right: 10px;">
+  Test Backend
+</button>
       </mat-menu>
     </div>
   </div>

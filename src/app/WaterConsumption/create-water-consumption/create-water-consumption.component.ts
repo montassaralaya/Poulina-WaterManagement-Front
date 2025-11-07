@@ -47,6 +47,9 @@ export class CreateWaterConsumptionComponent implements OnInit {
   isSubmitting = false;
   successMessage = '';
 
+  // ✅ Add source options for the dropdown
+  sourceOptions = ['OCR', 'Manual'];
+
   constructor(
     private fb: FormBuilder,
     private waterConsumptionService: WaterConsumptionService,
@@ -58,7 +61,11 @@ export class CreateWaterConsumptionComponent implements OnInit {
       readingDate: [new Date(), Validators.required],
       cubicMeters: [0, [Validators.required, Validators.min(0)]],
       branchId: ['', Validators.required],
-      meterId: [''] // optional
+      meterId: [''], // optional
+      waterCost: [null, [Validators.min(0)]], // optional
+      source: ['OCR', Validators.required],
+      previousReading: [null, [Validators.min(0)]],
+      note: ['']
     });
   }
 
@@ -79,30 +86,30 @@ export class CreateWaterConsumptionComponent implements OnInit {
         this.successMessage = 'Water consumption record created successfully! Redirecting to list in 3 seconds...';
 
         // Reset form
-        this.waterConsumptionForm.reset({ 
-          readingDate: new Date(), 
-          cubicMeters: 0, 
-          branchId: '', 
-          meterId: '' 
+        this.waterConsumptionForm.reset({
+          readingDate: new Date(),
+          cubicMeters: 0,
+          branchId: '',
+          meterId: '',
+          waterCost: null,
+          source: 'OCR',
+          previousReading: null,
+          note: ''
         });
 
-        // Navigate back to list after 3 seconds
-        setTimeout(() => {
-          this.router.navigate(['/waterconsumption/list']);
-        }, 3000);
+        setTimeout(() => this.router.navigate(['/waterconsumption/list']), 3000);
       },
       error: (err: any) => {
         console.error('Failed to create water consumption:', err);
         this.isSubmitting = false;
-        // Consider adding a user-friendly error message here
       }
     });
   }
 
   onCancel() {
     if (this.waterConsumptionForm.dirty) {
-      const confirm = window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
-      if (!confirm) return;
+      const confirmCancel = window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
+      if (!confirmCancel) return;
     }
     this.router.navigate(['/waterconsumption/list']);
   }

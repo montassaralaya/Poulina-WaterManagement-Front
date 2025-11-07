@@ -32,7 +32,6 @@
 
         <mat-card-content>
           <form [formGroup]="waterMeterForm" (ngSubmit)="onSubmit()" class="meter-form">
-            <!-- Form Fields Grid -->
             <div class="form-grid">
               <!-- Serial Number Field -->
               <mat-form-field appearance="outline" class="full-width">
@@ -78,6 +77,28 @@
                 </mat-select>
                 <mat-icon matPrefix>status</mat-icon>
                 <mat-hint>Select the current status of the water meter</mat-hint>
+              </mat-form-field>
+
+              <!-- Installed At -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Installed At</mat-label>
+                <input matInput [matDatepicker]="installedPicker" formControlName="installedAt" placeholder="Optional installation date" />
+                <mat-datepicker-toggle matSuffix [for]="installedPicker"></mat-datepicker-toggle>
+                <mat-datepicker #installedPicker></mat-datepicker>
+              </mat-form-field>
+
+              <!-- Last Maintenance -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Last Maintenance</mat-label>
+                <input matInput [matDatepicker]="maintenancePicker" formControlName="lastMaintenance" placeholder="Optional last maintenance date" />
+                <mat-datepicker-toggle matSuffix [for]="maintenancePicker"></mat-datepicker-toggle>
+                <mat-datepicker #maintenancePicker></mat-datepicker>
+              </mat-form-field>
+
+              <!-- Meter Type -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Meter Type</mat-label>
+                <input matInput formControlName="meterType" placeholder="Optional meter type (e.g., Analog, Digital)" />
               </mat-form-field>
 
               <!-- Additional Information Section -->

@@ -1,0 +1,256 @@
+<div class="app-container">
+  <app-header></app-header>
+
+  <div class="main-content-container">
+    <app-sidebar></app-sidebar>
+
+    <main class="content-area">
+      <!-- Header Section -->
+      <div class="content-header">
+        <div class="header-content">
+          <div class="title-section">
+            <h2><mat-icon class="header-icon">show_chart</mat-icon> Water Consumption Analytics</h2>
+            <p class="subtitle">Visualize and analyze water usage patterns across meters</p>
+          </div>
+          <div class="header-actions">
+            <button mat-stroked-button color="primary" routerLink="/waterconsumption/list" class="back-button">
+              <mat-icon>arrow_back</mat-icon>
+              Back to Records
+            </button>
+            <button mat-raised-button color="accent" (click)="refreshData()" [disabled]="isRefreshing" class="refresh-button">
+              <mat-icon>{{ isRefreshing ? 'refresh' : 'sync' }}</mat-icon>
+              {{ isRefreshing ? 'Refreshing...' : 'Refresh Data' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Overview -->
+      <div class="stats-container">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getTotalMeters() }}</div>
+            <div class="stat-label">Water Meters</div>
+            <mat-icon class="stat-icon">speed</mat-icon>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getTotalRecords() }}</div>
+            <div class="stat-label">Total Records</div>
+            <mat-icon class="stat-icon">list</mat-icon>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getTotalBranchConsumption() | number:'1.0-0' }} m³</div>
+            <div class="stat-label">Total Water</div>
+            <mat-icon class="stat-icon">water_drop</mat-icon>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ getAverageConsumption() | number:'1.1-1' }} m³</div>
+            <div class="stat-label">Average Usage</div>
+            <mat-icon class="stat-icon">trending_up</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Branch Info Card -->
+      <mat-card class="branch-info-card">
+        <mat-card-content>
+          <div class="branch-header">
+            <div class="branch-title">
+              <mat-icon>business</mat-icon>
+              <div class="branch-details">
+                <h3>{{ branchName }}</h3>
+                <span class="branch-id">ID: {{ branchId }}</span>
+              </div>
+              <span class="consumption-count">
+                {{ getTotalMeters() }} meter{{ getTotalMeters() !== 1 ? 's' : '' }} • 
+                {{ getTotalRecords() }} record{{ getTotalRecords() !== 1 ? 's' : '' }} • 
+                {{ getTotalBranchConsumption() | number:'1.0-0' }} m³ total
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Meter Statistics Cards -->
+      <div *ngIf="!isLoading && hasData" class="stats-grid">
+        <mat-card *ngFor="let meter of meterData" class="meter-stat-card" 
+                  [style.border-left]="'4px solid ' + meter.color">
+          <mat-card-content>
+            <div class="meter-header">
+              <mat-icon>speed</mat-icon>
+              <div class="meter-info">
+                <h4>{{ meter.meterSerialNumber }}</h4>
+                <span class="meter-id">ID: {{ meter.meterId }}</span>
+              </div>
+            </div>
+            <div class="meter-stats">
+              <div class="stat">
+                <span class="stat-value">{{ getMeterStats(meter).records }}</span>
+                <span class="stat-label">Records</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ getMeterStats(meter).total | number:'1.0-0' }}</span>
+                <span class="stat-label">Total m³</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ getMeterStats(meter).average | number:'1.1-1' }}</span>
+                <span class="stat-label">Avg m³</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ getMeterStats(meter).max | number:'1.1-1' }}</span>
+                <span class="stat-label">Max m³</span>
+              </div>
+            </div>
+            <div class="meter-actions">
+              <button mat-stroked-button color="primary" (click)="viewMode = 'individual'; selectedMeter = meter.meterId; onViewModeChange()">
+                <mat-icon>visibility</mat-icon>
+                View Details
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Chart Controls -->
+      <div *ngIf="!isLoading && hasData" class="controls-container">
+        <div class="controls-group">
+          <mat-button-toggle-group [(ngModel)]="viewMode" (change)="onViewModeChange()" 
+                                  class="view-toggle">
+            <mat-button-toggle value="combined">
+              <mat-icon>stacked_line_chart</mat-icon>
+              Combined View
+            </mat-button-toggle>
+            <mat-button-toggle value="individual">
+              <mat-icon>show_chart</mat-icon>
+              Individual Meter
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+
+          <mat-button-toggle-group [(ngModel)]="chartType" (change)="onChartTypeChange()" 
+                                  class="chart-type-toggle">
+            <mat-button-toggle value="line">
+              <mat-icon>show_chart</mat-icon>
+              Line
+            </mat-button-toggle>
+            <mat-button-toggle value="bar">
+              <mat-icon>bar_chart</mat-icon>
+              Bar
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+
+          <button mat-stroked-button 
+                  [color]="showTrendLine ? 'accent' : 'primary'" 
+                  (click)="showTrendLine = !showTrendLine; onTrendLineToggle()"
+                  class="trend-button">
+            <mat-icon>trending_up</mat-icon>
+            {{ showTrendLine ? 'Hide Trend' : 'Show Trend' }}
+          </button>
+        </div>
+
+        <div class="controls-group">
+          <mat-form-field class="period-selector">
+            <mat-label>Time Period</mat-label>
+            <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="onPeriodChange()">
+              <mat-option *ngFor="let period of chartPeriods" [value]="period.value">
+                {{ period.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field *ngIf="viewMode === 'individual'" class="meter-selector">
+            <mat-label>Select Water Meter</mat-label>
+            <mat-select [(ngModel)]="selectedMeter" (selectionChange)="onMeterSelectionChange()">
+              <mat-option *ngFor="let meter of meterData" [value]="meter.meterId">
+                {{ meter.meterSerialNumber }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="exportChart()" class="export-button">
+            <mat-icon>download</mat-icon>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading water consumption analytics...</p>
+      </div>
+
+      <!-- No Data State -->
+      <div *ngIf="!isLoading && !hasData" class="empty-state-card">
+        <mat-card-content>
+          <div class="empty-state">
+            <mat-icon>water_drop</mat-icon>
+            <h3>No consumption data available</h3>
+            <p>No water consumption records found for {{ branchName }}</p>
+            <button mat-raised-button color="primary" routerLink="/waterconsumption">
+              <mat-icon>arrow_back</mat-icon>
+              Back to Consumption List
+            </button>
+          </div>
+        </mat-card-content>
+      </div>
+
+      <!-- Chart -->
+      <div *ngIf="!isLoading && hasData" class="chart-wrapper">
+        <div
+          echarts
+          [options]="chartOptions"
+          class="echart"
+          style="height: 500px; width: 100%;"
+          (chartInit)="onChartInit($event)"
+        ></div>
+      </div>
+
+      <!-- Data Insights -->
+      <div *ngIf="!isLoading && hasData" class="insights-container">
+        <mat-card class="insights-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>insights</mat-icon>
+            <mat-card-title>Data Insights</mat-card-title>
+            <mat-card-subtitle>Key metrics and observations</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="insights-grid">
+              <div class="insight-item">
+                <mat-icon color="primary">calendar_today</mat-icon>
+                <div class="insight-content">
+                  <span class="insight-label">Data Period</span>
+                  <span class="insight-value">{{ getPeriodLabel() }}</span>
+                </div>
+              </div>
+              <div class="insight-item">
+                <mat-icon color="primary">date_range</mat-icon>
+                <div class="insight-content">
+                  <span class="insight-label">Date Range</span>
+                  <span class="insight-value">{{ getDateRange() }}</span>
+                </div>
+              </div>
+              <div class="insight-item">
+                <mat-icon color="primary">leaderboard</mat-icon>
+                <div class="insight-content">
+                  <span class="insight-label">Highest Consumption</span>
+                  <span class="insight-value">{{ getHighestConsumption() }} m³</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </main>
+  </div>
+
+  <app-footer></app-footer>
+</div>

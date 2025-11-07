@@ -51,6 +51,8 @@ export class UpdateWaterConsumptionComponent implements OnInit {
   consumptionId!: string;
   isLoading = true;
 
+  sourceOptions: string[] = ['Well', 'Municipal', 'Recycled', 'Other'];
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -69,7 +71,11 @@ export class UpdateWaterConsumptionComponent implements OnInit {
       readingDate: [new Date(), Validators.required],
       cubicMeters: [0, [Validators.required, Validators.min(0)]],
       branchId: ['', Validators.required],
-      meterId: ['']
+      meterId: [''],
+      waterCost: [0, [Validators.min(0)]],
+      source: ['', Validators.required],
+      previousReading: [0, [Validators.min(0)]],
+      note: ['']
     });
   }
 
@@ -80,14 +86,17 @@ export class UpdateWaterConsumptionComponent implements OnInit {
           readingDate: new Date(data.readingDate),
           cubicMeters: data.cubicMeters,
           branchId: data.branchId,
-          meterId: data.meterId || ''
+          meterId: data.meterId || '',
+          waterCost: data.waterCost ?? 0,
+          source: data.source || '',
+          previousReading: data.previousReading ?? 0,
+          note: data.note || ''
         });
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Failed to load water consumption data:', err);
         this.isLoading = false;
-        // Consider adding a user-friendly error message here
       }
     });
   }
@@ -112,7 +121,6 @@ export class UpdateWaterConsumptionComponent implements OnInit {
       error: (err) => {
         console.error('Failed to update water consumption:', err);
         this.isSubmitting = false;
-        // Consider adding a user-friendly error message here
       }
     });
   }

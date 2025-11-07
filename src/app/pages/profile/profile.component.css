@@ -1,20 +1,52 @@
-mat-card {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 20px;
-  text-align: left;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  border-radius: 8px;
+.profile-info {
+  margin: 20px 0;
 }
 
-h2 {
+.profile-info p {
+  margin: 10px 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.warning-message {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #856404;
+}
+
+.warning-message mat-icon {
+  color: #f39c12;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+mat-card {
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+mat-card-header {
   margin-bottom: 20px;
 }
 
-p {
-  margin: 5px 0;
-}
-
-button {
-  margin-top: 20px;
+mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
